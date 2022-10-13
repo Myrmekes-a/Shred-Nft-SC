@@ -1,0 +1,25 @@
+[package]
+name = "Shred_Bootcamp"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "shred_bootcamp"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
+spl-token = "3.2.0"
+solana-program = "^1.9.5"
+metaplex-token-metadata = { version = "0.0.1", features = ["no-entrypoint"] }
+
+Juiced_Ape_Evolution = { path = "../Juiced_Ape_Evolution", features = ["cpi"] }

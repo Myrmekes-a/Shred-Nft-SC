@@ -1,0 +1,27 @@
+[
+    {
+        "id": "1",
+        "oldPubkey": "EkZbumoRsJgFARrKugmC1dGMoW38UscEs3csLZfzFS41",
+        "newPubkey": "3x4WDcfwo1kdro3gm9q5AwAmaUbFTEzKHNPqHMRUrx3b"
+    },
+    {
+        "id": "2",
+        "oldPubkey": "BpmbXjvAhdTyzAwWNTZ2RBnFS9SEa5gGUMwAbE44mpnt",
+        "newPubkey": "9Te6NFKdGvRf5Hrm71hgC5RvL36ireMaLiyc2yoUk2Km"
+    },
+    {
+        "id": "3",
+        "oldPubkey": "8sHdrAVZQwkxrUUbQEYCFjXqS2fqrbtFFEvtBVykFf1B",
+        "newPubkey": "DwzB1XJqVoPbU5CFoXz2gxKii2tnLKFfEsz9mbUSETeX"
+    },
+    {
+        "id": "4",
+        "oldPubkey": "7AuwLTSG97poxrGRehe7QbcH9WbdANU96gaYeu2Kacx6",
+        "newPubkey": "7ojEAu7ofaJi2histQxJQ4VsEZ7ozb8pwgAwjXZhTtK1"
+    },
+    {
+        "id": "5",
+        "oldPubkey": "8fWdUJfRdTZaQFrCNNrSny38BiChaXcG52Vt2va217ui",
+        "newPubkey": "6TF3vLTJLqNgrWQQ6Q3Rjp4fjioSAgFtSVn5UjZsBXQ5"
+    }
+]
