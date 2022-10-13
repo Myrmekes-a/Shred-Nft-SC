@@ -2933,13 +2933,13 @@ button.full-width-cta {
   font-size: 30px;
 }
 
-.sub-title {
+.h-sub-title {
   margin: 50px 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.sub-title h3 {
+.h-sub-title h3 {
   font-size: 30px;
 }

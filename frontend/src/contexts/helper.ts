@@ -44,10 +44,10 @@ export const initProject = async (wallet: WalletContextState) => {
   if (!wallet.publicKey) return;
   let cloneWindow: any = window;
 
-  let provider = new anchor.AnchorProvider(
+  let provider = new anchor.Provider(
     solConnection,
     cloneWindow["solana"],
-    anchor.AnchorProvider.defaultOptions()
+    anchor.Provider.defaultOptions()
   );
   const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
 
@@ -105,10 +105,10 @@ export const getAssociatedTokenAccount = async (
 
 export const getGlobalState = async (): Promise<GlobalPool | null> => {
   let cloneWindow: any = window;
-  let provider = new anchor.AnchorProvider(
+  let provider = new anchor.Provider(
     solConnection,
     cloneWindow["solana"],
-    anchor.AnchorProvider.defaultOptions()
+    anchor.Provider.defaultOptions()
   );
   const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
   const [globalAuthority] = await PublicKey.findProgramAddress(
@@ -128,10 +128,10 @@ export const getUserPoolState = async (
 ): Promise<UserPool | null> => {
   if (!userAddress) return null;
   let cloneWindow: any = window;
-  let provider = new anchor.AnchorProvider(
+  let provider = new anchor.Provider(
     solConnection,
     cloneWindow["solana"],
-    anchor.AnchorProvider.defaultOptions()
+    anchor.Provider.defaultOptions()
   );
   const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
 
@@ -150,10 +150,10 @@ export const getUserPoolState = async (
 
 export const getUserPoolAccounts = async () => {
   let cloneWindow: any = window;
-  let provider = new anchor.AnchorProvider(
+  let provider = new anchor.Provider(
     solConnection,
     cloneWindow["solana"],
-    anchor.AnchorProvider.defaultOptions()
+    anchor.Provider.defaultOptions()
   );
   const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
 
@@ -211,10 +211,10 @@ export const stakeNft = async (
   // console.log("Shred NFT = ", mint.toBase58(), userTokenAccount.toBase58());
   try {
     let cloneWindow: any = window;
-    let provider = new anchor.AnchorProvider(
+    let provider = new anchor.Provider(
       solConnection,
       cloneWindow["solana"],
-      anchor.AnchorProvider.defaultOptions()
+      anchor.Provider.defaultOptions()
     );
     const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
     const [globalAuthority, bump] = await PublicKey.findProgramAddress(
@@ -292,10 +292,10 @@ export const withdrawNft = async (
   startLoading();
   try {
     let cloneWindow: any = window;
-    let provider = new anchor.AnchorProvider(
+    let provider = new anchor.Provider(
       solConnection,
       cloneWindow["solana"],
-      anchor.AnchorProvider.defaultOptions()
+      anchor.Provider.defaultOptions()
     );
     const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
     const [globalAuthority, bump] = await PublicKey.findProgramAddress(
@@ -435,10 +435,10 @@ export const initUserPool = async (wallet: WalletContextState) => {
   let userAddress = wallet.publicKey;
   if (!userAddress) return;
   let cloneWindow: any = window;
-  let provider = new anchor.AnchorProvider(
+  let provider = new anchor.Provider(
     solConnection,
     cloneWindow["solana"],
-    anchor.AnchorProvider.defaultOptions()
+    anchor.Provider.defaultOptions()
   );
   const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
   let userPoolKey = await PublicKey.createWithSeed(
@@ -492,10 +492,10 @@ export const claimReward = async (
   startLoading();
   try {
     let cloneWindow: any = window;
-    let provider = new anchor.AnchorProvider(
+    let provider = new anchor.Provider(
       solConnection,
       cloneWindow["solana"],
-      anchor.AnchorProvider.defaultOptions()
+      anchor.Provider.defaultOptions()
     );
     const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
 
