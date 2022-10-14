@@ -1,42 +1,27 @@
 [
     {
-        "id": "3",
-        "oldPubkey": "CaJhx5h5fNhH26CjjER1v1Ds5VRpaMAWNkyQGPeKuPEE",
-        "newPubkey": "B86iym3d2iqB72TGLJc3A8K97FxGLUtj7x4xajinFPHq"
-    },
-    {
-        "id": "4",
-        "oldPubkey": "AnPdt4tUNUg5d64cpGs2rzcWBVXiFCfQ1JXG3TNCf47m",
-        "newPubkey": "8kcxyWUgtgNEgiSNZSEGKwS8xya8qYZor6kMeqeeNyja"
-    },
-    {
-        "id": "6",
-        "oldPubkey": "6heR4DLuZ2PXsY6Fba1ukx9NE1EUeaYESCsze2mUqAEM",
-        "newPubkey": "2c34gka1D8xJnoYq6niedsZmnDrPpibjif5LphBZujBV"
-    },
-    {
-        "id": "7",
-        "oldPubkey": "DjuU7P74S2oDtDqLqFDBSnnvR9aqasQFMP3YN6ReeovX",
-        "newPubkey": "CmYeBNpJr9CHfe91KqVtcMKp7UT2qSd6BATTPriD6wBx"
+        "id": "1",
+        "oldPubkey": "HVM2DBanBNn1CX1ooS8TqXo8D6S25ev6Ud9sN9tKkSrL",
+        "newPubkey": "36G5yb1ehF1jKKJtYssgNLUm6aVfHBdfuuEKYEEzGwG1"
     },
     {
         "id": "10",
-        "oldPubkey": "D2MicyveL32t1Sas8YGxGpRf8mUdRAWryXtEaYhir472",
-        "newPubkey": "CLkQHC6Cd1DLW5jxaZ39RFJLiWoWnY2Gzt3ryAuwkeaf"
+        "oldPubkey": "2qFXWDqiAXURReMm8p13j5VhQfKJZeoynSKthiCJ4FKB",
+        "newPubkey": "127KaJaYmeyvqVFQYic9NgUCzb1Vw6CD7xhbacY5eY66"
+    },
+    {
+        "id": "0",
+        "oldPubkey": "CTEKH8uH8RQXrMWK3SpY7MBSfT7cbHmymWj3NPqBUtS1",
+        "newPubkey": "FRheguTdqAKmdBpeDW3SARrFWo38ZNgdeQPLXnXPZQVL"
     },
     {
         "id": "11",
-        "oldPubkey": "36iFZa6TrjfnvLgbMTg7MW67ZDLiGzukk5TA5wF6Q18m",
-        "newPubkey": "EURCrRZXHEp3HAXxUKcowiYzpr5PX2YvC6o83MkdiE6S"
+        "oldPubkey": "HBgoEaonXx5gVaD7gPfD8HzzjjaGMihaUossjVngBUJ9",
+        "newPubkey": "AsSF8RJt6AFNLPm1K1dwZjkK5X8iDr1YZvkXto36GCaj"
     },
     {
-        "id": "13",
-        "oldPubkey": "8HX1mRePPVtEkczoCCSv9K9bvADQXd22VJ3mJ374pPQh",
-        "newPubkey": "CRS2TGxmzqJcEp1YcGTHpWr8CB1PAZwZRuCHQ5mpWEWA"
-    },
-    {
-        "id": "14",
-        "oldPubkey": "9j3rkKFDrbtBdgp7grn9HDXRy4A7yYywUstNXqTK2Zrt",
-        "newPubkey": "FKoierXDURDUNMzkhtsCEf5Xc4DEasJDy8BGTedZ2vgK"
+        "id": "12",
+        "oldPubkey": "5Nr85eFBiF6Swuxo2PPta1XnyAt88RkkAuonXs51sQkZ",
+        "newPubkey": "468CZzcu8EccJdKMTfocietcRJEZMCXz1W235UVpiBVy"
     }
 ]
