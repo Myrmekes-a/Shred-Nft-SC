@@ -18,10 +18,10 @@ export const BURN_WALLET_ADDRESS = new PublicKey(
   "492iBtJutTsPjvkqTLAaw9x5KL3hAQCPUnEG2ZZGif15"
 );
 export const IMMUTABLE_COLLECTION =
-  "7bDNnBoDtEAKyS7Y4pkcM9yTAJEvhuGKKhq7cabM1QyP";
+  "DaCfLZCs1RegZvwDKnAHJsRYv8qZ2zBb3y9VbX61enLt";
 
 export const MUTABLE_COLLECTION =
-  "6a3dyXQsw1GzietSCL5ibGrxvYgKnJdcm1i9gpiXsKu7";
+  "7HrFiy1sDtqb2U5ZJXm4VzjobXX2HSxQFLsNZKbUSnAc";
 //export const ADMIN_PUBKEY = new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu");
 // export const REWARD_TOKEN_MINT = new PublicKey(
 //   "5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi"

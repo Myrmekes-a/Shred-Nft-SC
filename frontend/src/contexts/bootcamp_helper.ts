@@ -48,7 +48,8 @@ export const NFT_POOL_SEED = "juicing-nft-pool";
 
 export const nftToMutable = async (
   wallet: WalletContextState,
-  stakedNftMint: PublicKey
+  stakedNftMint: PublicKey,
+  updatePage: Function
 ) => {
   if (!wallet.publicKey) return;
 
@@ -209,7 +210,7 @@ export const nftToMutable = async (
   }
   // closeLoading();
   console.log("Your transaction signature", tx);
-  // updatePage();
+  updatePage();
 };
 
 export const mutNftFromBootcamp = async (

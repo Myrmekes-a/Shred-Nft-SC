@@ -1,0 +1,23 @@
+{
+    "name": "test600#4",
+    "symbol": "TEST",
+    "description": "The Shredded NFT.",
+    "seller_fee_basis_points": 100,
+    "image": "4.png",
+    "attributes": [],
+    "properties": {
+        "files": [
+            {
+                "uri": "4.png",
+                "type": "image/png"
+            }
+        ],
+        "category": "image",
+        "creators": [
+            {
+                "address": "H7TcNyyb9BAdQrEHy2TA95hpMhsWW5cp5jkyXpBPS7Uq",
+                "share": 100
+            }
+        ]
+    }
+}

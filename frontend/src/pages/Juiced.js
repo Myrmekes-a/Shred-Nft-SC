@@ -46,19 +46,21 @@ export default function Juiced() {
         const nft = await getNftMetaData(
           new PublicKey(bootcamp_list.stakedMints[i].mint)
         );
-        await fetch(nft.data.data.uri)
-          .then((resp) => resp.json())
-          .then((json) => {
-            nftBootCampDump.push({
-              name: json.name,
-              image: json.image,
-              mint: nft.data.mint,
-              address: bootcamp_list.stakedMints[i].mint.toBase58(),
-              isMutable: 1,
-              // isMutable: nft.data.isMutable,
-              // legendary: legendaryValidatie(json),
+        if (nft.data.data.uri) {
+          await fetch(nft.data.data.uri)
+            .then((resp) => resp.json())
+            .then((json) => {
+              nftBootCampDump.push({
+                name: json.name,
+                image: json.image,
+                mint: nft.data.mint,
+                address: bootcamp_list.stakedMints[i].mint.toBase58(),
+                isMutable: 1,
+                // isMutable: nft.data.isMutable,
+                // legendary: legendaryValidatie(json),
+              });
             });
-          });
+        }
 
         for (let j = 0; j < nftList.length; j++) {
           if (
@@ -69,18 +71,20 @@ export default function Juiced() {
               new PublicKey(nftList[j].newPubkey)
             );
 
-            await fetch(newNft.data.data.uri)
-              .then((resp) => resp.json())
-              .then((json) => {
-                nftJuicedDump.push({
-                  name: json.name,
-                  image: json.image,
-                  address: nftList[j].newPubkey,
-                  oldaddress: bootcamp_list.stakedMints[i].mint.toBase58(),
-                  // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
-                  // legendary: legendaryValidatie(json),
+            if (newNft.data.data.uri) {
+              await fetch(newNft.data.data.uri)
+                .then((resp) => resp.json())
+                .then((json) => {
+                  nftJuicedDump.push({
+                    name: json.name,
+                    image: json.image,
+                    address: nftList[j].newPubkey,
+                    oldaddress: bootcamp_list.stakedMints[i].mint.toBase58(),
+                    // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
+                    // legendary: legendaryValidatie(json),
+                  });
                 });
-              });
+            }
           }
         }
       }
@@ -148,18 +152,20 @@ export default function Juiced() {
           nft.data.data.creators[0].address === IMMUTABLE_COLLECTION ||
           nft.data.data.creators[0].address === MUTABLE_COLLECTION
         ) {
-          await fetch(nft.data.data.uri)
-            .then((resp) => resp.json())
-            .then((json) => {
-              userNFTList.push({
-                name: json.name,
-                image: json.image,
-                mint: nft.data.mint,
-                address: list[i].mint,
-                isMutable: nft.data.isMutable,
-                // legendary: legendaryValidatie(json),
+          if (nft.data.data.uri) {
+            await fetch(nft.data.data.uri)
+              .then((resp) => resp.json())
+              .then((json) => {
+                userNFTList.push({
+                  name: json.name,
+                  image: json.image,
+                  mint: nft.data.mint,
+                  address: list[i].mint,
+                  isMutable: nft.data.isMutable,
+                  // legendary: legendaryValidatie(json),
+                });
               });
-            });
+          }
 
           for (let j = 0; j < nftList.length; j++) {
             if (nftList[j].oldPubkey === list[i].mint) {
@@ -167,18 +173,20 @@ export default function Juiced() {
                 new PublicKey(nftList[j].newPubkey)
               );
 
-              await fetch(newNft.data.data.uri)
-                .then((resp) => resp.json())
-                .then((json) => {
-                  nftJuicedDump.push({
-                    name: json.name,
-                    image: json.image,
-                    address: nftList[j].newPubkey,
-                    oldaddress: list[i].mint,
-                    // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
-                    // legendary: legendaryValidatie(json),
+              if (newNft.data.data.uri) {
+                await fetch(newNft.data.data.uri)
+                  .then((resp) => resp.json())
+                  .then((json) => {
+                    nftJuicedDump.push({
+                      name: json.name,
+                      image: json.image,
+                      address: nftList[j].newPubkey,
+                      oldaddress: list[i].mint,
+                      // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
+                      // legendary: legendaryValidatie(json),
+                    });
                   });
-                });
+              }
             }
           }
         }
