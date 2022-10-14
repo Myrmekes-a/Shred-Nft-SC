@@ -23,5 +23,45 @@
         "id": "12",
         "oldPubkey": "5Nr85eFBiF6Swuxo2PPta1XnyAt88RkkAuonXs51sQkZ",
         "newPubkey": "468CZzcu8EccJdKMTfocietcRJEZMCXz1W235UVpiBVy"
+    },
+    {
+        "id": "13",
+        "oldPubkey": "Ghw4ansoTTFhbKuxxwtsFFr2iFFigKRQxaJYZrr3x92B+--",
+        "newPubkey": "FQqeNsVUphgezrdsg8vngxFWkyr4iEXEkYzAjjviegHZ"
+    },
+    {
+        "id": "2",
+        "oldPubkey": "CTugT7Zx251WGJc1ULGQZaCk5exftV61ncAnLfrNKFGA",
+        "newPubkey": "127KaJaYmeyvqVFQYic9NgUCzb1Vw6CD7xhbacY5eY66"
+    },
+    {
+        "id": "3",
+        "oldPubkey": "CHbfAdeZqJJFgYm4hQa3PqmWRS6RwMw9R7AWjzhtd8Q8",
+        "newPubkey": "8idsCEuTrYcVz5yGsYSuqaWj8d4FwgcknYgCDik8MNmq"
+    },
+    {
+        "id": "4",
+        "oldPubkey": "Agjs7bx7pjJvheoWS5EAjgSMRjboxm4Yi2ABpVDiSRv3",
+        "newPubkey": "ChiMWHYsrR8zEasvCX75kVideWwjpfFD5dk2jLXbxG2Y"
+    },
+    {
+        "id": "5",
+        "oldPubkey": "4nezpiPPW7SfdBSn3efEQNZUmmpZkDjXAiLyzeTgzWFQ",
+        "newPubkey": "468CZzcu8EccJdKMTfocietcRJEZMCXz1W235UVpiBVy"
+    },
+    {
+        "id": "6",
+        "oldPubkey": "F4uXWRLnvNSrgV73pooK6hJSpbXeVnnXbin14F5ZCyLn",
+        "newPubkey": "5fWwVna3DsBuXHTE3aBp5cFyJ4v7TopCFKzty2jmRXWg"
+    },
+    {
+        "id": "7",
+        "oldPubkey": "3tUyPFtq3kpnYQKr8JPrnHRQLiw5bG3zN9jyJFjncn6j",
+        "newPubkey": "9wgp6dR6u7BQUsdoTXoaszGdy2wYodjJia5sNvvBwFsr"
+    },
+    {
+        "id": "8",
+        "oldPubkey": "23oxWt7fN3t1HmCwzycq4ipvJdX9GXerJis83uSCgiKe",
+        "newPubkey": "A44gZauq3WTwDCnx57PDMC3kfCeExNULe6z4VJcuCDFX"
     }
 ]
