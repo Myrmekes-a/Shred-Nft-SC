@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "ts-node": "export ANCHOR_WALLET=/home/ubuntu/.config/solana/id.json && ts-node ./cli/scripts.ts"
+        "ts-node": "export ANCHOR_WALLET=/home/ubuntu/JK/jk.json && ts-node ./cli/scripts.ts"
     },
     "dependencies": {
         "@metaplex-foundation/mpl-token-metadata": "^2.3.2",

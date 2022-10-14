@@ -85,14 +85,14 @@ const main = async () => {
     console.log('RewardVault: ', rewardVault.toBase58());
 
 
-    // await initProject();
+    await initProject();
 
     // const globalPool: GlobalPool = await getGlobalState();
     // console.log("globalPool =", globalPool.superAdmin.toBase58(), globalPool.totalStakedCount.toNumber());
 
     // await initUserPool(payer.publicKey);
     // await initNftPool(new PublicKey("CGt2VquBba9shqbzCMfYkzpWF2kwBYDFQXJXayV4TtFt"));
-    await stakeNft(payer.publicKey, new PublicKey('DjuU7P74S2oDtDqLqFDBSnnvR9aqasQFMP3YN6ReeovX'), false, 1);
+    // await stakeNft(payer.publicKey, new PublicKey('DjuU7P74S2oDtDqLqFDBSnnvR9aqasQFMP3YN6ReeovX'), false, 1);
     // await withdrawNft(payer.publicKey, new PublicKey('D8c3sRRgryP5iaaqKLkaE7Gv3NQGYFdMzkkdxrfBz7n'));
     // await claimReward(payer.publicKey);
 
@@ -309,19 +309,33 @@ export const initProject = async (
         [Buffer.from(GLOBAL_AUTHORITY_SEED)],
         program.programId
     );
-    console.log("+++++", globalAuthority.toBase58());
-    const tx = await program.rpc.initialize(
-        bump, {
-        accounts: {
-            admin: payer.publicKey,
-            globalAuthority,
-            rewardVault: rewardVault,
-            systemProgram: SystemProgram.programId,
-            rent: SYSVAR_RENT_PUBKEY,
-        },
-        signers: [],
+    let ix = await getATokenAccountsNeedCreate(
+        solConnection,
+        provider.publicKey,
+        provider.publicKey,
+        // new PublicKey('H7TcNyyb9BAdQrEHy2TA95hpMhsWW5cp5jkyXpBPS7Uq'),
+        [new PublicKey('AsSF8RJt6AFNLPm1K1dwZjkK5X8iDr1YZvkXto36GCaj')]
+    );
+    let tx = new Transaction();
+    tx.add(...ix.instructions);
+    // console.log("+++++", globalAuthority.toBase58());
+    // const tx = await program.rpc.initialize(
+    //     bump, {
+    //     accounts: {
+    //         admin: payer.publicKey,
+    //         globalAuthority,
+    //         rewardVault: rewardVault,
+    //         systemProgram: SystemProgram.programId,
+    //         rent: SYSVAR_RENT_PUBKEY,
+    //     },
+    //     signers: [],
+    // });
+    // await solConnection.confirmTransaction(tx, "confirmed");
+    const txId = await provider.sendAndConfirm(tx, [], {
+        commitment: "confirmed",
     });
-    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log("txHash =", txId);
 
     console.log("txHash =", tx);
     return false;
