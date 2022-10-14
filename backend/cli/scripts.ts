@@ -761,19 +761,6 @@ export const getATokenAccountsNeedCreate = async (
             instructions.push(createATAIx);
         }
         destinationAccounts.push(destinationPubkey);
-        if (walletAddress != owner) {
-            const userAccount = await getAssociatedTokenAccount(walletAddress, mint);
-            response = await connection.getAccountInfo(userAccount);
-            if (!response) {
-                const createATAIx = createAssociatedTokenAccountInstruction(
-                    userAccount,
-                    walletAddress,
-                    walletAddress,
-                    mint,
-                );
-                instructions.push(createATAIx);
-            }
-        }
     }
     return {
         instructions,
