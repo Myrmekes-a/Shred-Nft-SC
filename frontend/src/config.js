@@ -1,6 +1,10 @@
 import { web3 } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 
+export const PROGRAM_ID = "9F8CKAQSFNjRYpKifAshJJfTC5dT9uqg3MvVVdWvcBRE";
+
+export const GLOBAL_AUTHORITY_SEED = "global-authority";
+
 // export const APE_CREATOR = "69JUqMCBEyKBppr4zwGAM9HTQ8JtUwWE2vdQQShWQExH";
 // export const APE_CREATOR = "E5GSUDTQAvJouZkxHFGMA3THVzXWvrs4hRZEag2au3k6";
 export const APE_CREATOR = "36MrAKpGGp8ysANfTNCUswCH2qdCAmGy3pTdd8Ts8vCH";
@@ -8,7 +12,6 @@ export const DIAMOND_CREATOR = "Fg8CkttGq4jvgPYqeE7LLVmt3EwzsefGxnyvhJuXbiy7";
 export const PUBLISH_NETWORK = "devnet";
 
 export const USER_POOL_SIZE = 4864; // 8 + 4856
-export const GLOBAL_AUTHORITY_SEED = "global-authority";
 export const JUICING_GLOBAL_AUTHORITY_SEED = "juicing-global-authority";
 
 export const BURN_WALLET_ADDRESS = new PublicKey(
@@ -26,7 +29,7 @@ export const MUTABLE_COLLECTION =
 export const REWARD_TOKEN_MINT = new PublicKey(
   "CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU"
 );
-export const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
+// export const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
 export const JUICING_PROGRAM_ID =
   "6UGs1n5peX4pYhwRofoDvtVaz8sToP8kByU24576wQt4";
 

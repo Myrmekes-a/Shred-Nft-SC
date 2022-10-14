@@ -15,7 +15,8 @@ import { PublicKey } from "@solana/web3.js";
 import nftList from "../contexts/old_to_new.json";
 import { IMMUTABLE_COLLECTION, MUTABLE_COLLECTION } from "../config";
 import Footer from "../components/Footer";
-// import { join } from "lodash";
+import fire from "../assets/img/fire.png";
+import mutable from "../assets/img/mutable.png";
 
 export default function Juiced() {
   // ------------page state-----------
@@ -25,8 +26,6 @@ export default function Juiced() {
   const [userJuicedNFTs, setUserJuicedNFTs] = useState([]);
   const [walletNFTs, setWalletNFTs] = useState([]);
   const [walleMutabletNFTs, setWalletMutableNFTs] = useState([]);
-  const [rightNftImage, setRightNftImage] = useState();
-  const [leftNftImage, setLeftNftImage] = useState();
   const [loading, setLoading] = useState(false);
   // const [changeNftName, setChangeNftName] = useState();
   // const [totlaGlabalStakedCnt, setTotalGlobalStakedCnt] = useState(0);
@@ -207,10 +206,9 @@ export default function Juiced() {
         <div className="describe">
           <div className="des-group">
             <div className="des-nft">
-              <div>
-                {leftNftImage && (
-                  <img src={leftNftImage} alt="" className="left-nft" />
-                )}
+              <div className="immutable-nft">
+                <img src={mutable} alt="" className="left-nft" />
+                <img src={fire} alt="" className="fire-effect" />
                 <h3>NON-MUTABLE</h3>
               </div>
               <div className="right-arrow">
@@ -218,9 +216,7 @@ export default function Juiced() {
                 <RightDoubleArrowIcon />
               </div>
               <div>
-                {rightNftImage && (
-                  <img src={rightNftImage} alt="" className="right-nft" />
-                )}
+                <img src={mutable} alt="" className="right-nft" />
                 <h3>MUTABLE</h3>
               </div>
             </div>
@@ -243,7 +239,7 @@ export default function Juiced() {
             </button>
           </div>
           <div className="h-sub-title">
-            <h3>NFT's Staked in the Bootcamp</h3>
+            <h3>NFT's staked in Bootcamp</h3>
           </div>
           <div className="nft-list">
             {userStakedBootCampNFTs.length !== 0 &&
@@ -254,8 +250,6 @@ export default function Juiced() {
                   title={item.name}
                   address={item.address}
                   mutable={item.isMutable}
-                  rightImage={setRightNftImage}
-                  leftImage={setLeftNftImage}
                   nftList={userJuicedNFTs}
                   stake
                 />
@@ -273,8 +267,6 @@ export default function Juiced() {
                   title={item.name}
                   address={item.address}
                   mutable={item.isMutable}
-                  rightImage={setRightNftImage}
-                  leftImage={setLeftNftImage}
                   nftList={walleMutabletNFTs}
                 />
               ))}

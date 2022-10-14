@@ -10,8 +10,6 @@ export default function NFTJuicedCard({
   title,
   mutable,
   address,
-  rightImage,
-  leftImage,
   nftList,
   stake,
 }) {
@@ -20,30 +18,18 @@ export default function NFTJuicedCard({
   const [loading, setLoading] = useState(false);
   const [nftTitle, setNftTitle] = useState(title);
   const [mutableImage, setMutableImage] = useState(image);
-  const [changeImage, setChangeImage] = useState();
-  const [changeTitle, setChangeTitle] = useState();
   const [changeMutable, setChangeMutable] = useState(mutable);
 
   const setImage = () => {
-    leftImage(image);
     let i;
     for (i = 0; i < nftList.length; i++) {
       if (nftList[i].oldaddress === address) {
-        rightImage(nftList[i].image);
-        setChangeImage(nftList[i].image);
-        setChangeTitle(nftList[i].name);
         break;
       }
-    }
-    if (i === nftList.length) {
-      rightImage("");
     }
   };
 
   const mutableNft = async () => {
-    if (!changeImage) {
-      setImage();
-    }
     if (stake) {
       await mutNftFromBootcamp(
         wallet,
@@ -59,10 +45,6 @@ export default function NFTJuicedCard({
 
   const updatePage = () => {
     setChangeMutable(1);
-    setNftTitle(changeTitle);
-    if (changeImage) {
-      setMutableImage(changeImage);
-    }
   };
   useEffect(() => {}, [changeMutable, wallet.connected, wallet.publicKey]);
   return (
