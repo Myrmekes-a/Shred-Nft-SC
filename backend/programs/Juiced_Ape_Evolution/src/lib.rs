@@ -144,10 +144,8 @@ pub mod juiced_ape_evolution {
     pub fn nft_to_mutable(
         ctx:Context<NftToMutable>,
         global_bump: u8,
-        // bootcamp_global_bump: u8,
         _nft_bump: u8,
         new_nft_id: String,
-        // cpi_flag: bool
     ) -> Result<()> {
         require!(
             ctx.accounts.nft_pool.is_mutable == false,
