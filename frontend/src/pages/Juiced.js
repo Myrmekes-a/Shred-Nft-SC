@@ -239,11 +239,11 @@ export default function Juiced() {
           </div>
           <div className="all-nft-mutable">
             <button className="non-mutable-btn" onClick={mutableNft}>
-              <span>Make All NFT Mutable</span>
+              <span>Make All NFT's Mutable</span>
             </button>
           </div>
           <div className="h-sub-title">
-            <h3>Staked NFTs in the Bootcamp</h3>
+            <h3>NFT's Staked in the Bootcamp</h3>
           </div>
           <div className="nft-list">
             {userStakedBootCampNFTs.length !== 0 &&
