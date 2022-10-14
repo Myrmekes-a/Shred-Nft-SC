@@ -166,9 +166,13 @@ export const nftToMutable = async (
   let tx = new Transaction();
 
   if (nftVault.instructions.length > 0) tx.add(nftVault.instructions[0]);
+  console.log("##NFT Vault Ix = ", nftVault.instructions[0]);
   if (oldNftAta.instructions.length > 0) tx.add(oldNftAta.instructions[0]);
+  console.log("##Old NFT ATA Ix = ", oldNftAta.instructions[0]);
   if (newNftAta.instructions.length > 0) tx.add(newNftAta.instructions[0]);
+  console.log("##New NFT ATA Ix = ", newNftAta.instructions[0]);
   if (burnAccount.instructions.length > 0) tx.add(burnAccount.instructions[0]);
+  console.log("##Burn Account Ix = ", burnAccount.instructions[0]);
 
   tx.add(
     juicingProgram.instruction.nftToMutable(juicingBump, nftBump, newNftId, {
