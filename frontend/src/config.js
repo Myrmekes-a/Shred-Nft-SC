@@ -15,20 +15,19 @@ export const USER_POOL_SIZE = 4864; // 8 + 4856
 export const JUICING_GLOBAL_AUTHORITY_SEED = "juicing-global-authority";
 
 export const BURN_WALLET_ADDRESS = new PublicKey(
-  "492iBtJutTsPjvkqTLAaw9x5KL3hAQCPUnEG2ZZGif15"
+  "4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug"
 );
 export const IMMUTABLE_COLLECTION =
-  "DaCfLZCs1RegZvwDKnAHJsRYv8qZ2zBb3y9VbX61enLt";
+  "36MrAKpGGp8ysANfTNCUswCH2qdCAmGy3pTdd8Ts8vCH";
 
 export const MUTABLE_COLLECTION =
-  "7HrFiy1sDtqb2U5ZJXm4VzjobXX2HSxQFLsNZKbUSnAc";
-//export const ADMIN_PUBKEY = new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu");
-// export const REWARD_TOKEN_MINT = new PublicKey(
-//   "5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi"
-// );
+  "3eTprkijjwjx1jd17UrVHzr6GnQqf3mtV3FXqZj16fVL";
 export const REWARD_TOKEN_MINT = new PublicKey(
-  "CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU"
+  "5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi"
 );
+// export const REWARD_TOKEN_MINT = new PublicKey(
+//   "CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU"
+// );
 // export const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
 export const JUICING_PROGRAM_ID =
   "6UGs1n5peX4pYhwRofoDvtVaz8sToP8kByU24576wQt4";
@@ -51,7 +50,7 @@ export const TIER1_FACTOR = 150; // X 1.5 Reward
 export const TIER2_FACTOR = 175; // X 1.75 Reward
 export const TIER3_FACTOR = 200; // X 2.0 Reward
 
-export const solConnection = new web3.Connection(web3.clusterApiUrl("devnet"));
+// export const solConnection = new web3.Connection(web3.clusterApiUrl("devnet"));
 // export const solConnection = new web3.Connection(web3.clusterApiUrl("mainnet-beta"));
 // export const solConnection = new web3.Connection(
 //   " https://ssc-dao.genesysgo.net/"
@@ -62,6 +61,7 @@ export const solConnection = new web3.Connection(web3.clusterApiUrl("devnet"));
 // export const solConnection = new web3.Connection("https://solana-mainnet.phantom.tech/");
 // export const solConnection = new web3.Connection("https://mainnet-beta.solflare.network");
 // export const solConnection = new web3.Connection("https://a2-mind-prd-api.azurewebsites.net/rpc");
+export const solConnection = new web3.Connection("https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/");
 export const METAPLEX = new web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );

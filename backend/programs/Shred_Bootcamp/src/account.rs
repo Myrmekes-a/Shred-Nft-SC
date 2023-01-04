@@ -210,7 +210,6 @@ impl UserPool {
                 self.staked_mints[idx].mint = new_nft_mint;
                 break;
             }
-            continue;
         }
     }
 }
