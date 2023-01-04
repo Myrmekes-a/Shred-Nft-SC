@@ -36,7 +36,8 @@
           "name": "globalBump",
           "type": "u8"
         }
-      ]
+      ],
+      "returns": "u8"
     },
     {
       "name": "initializeUserPool",
@@ -52,7 +53,8 @@
           "isSigner": true
         }
       ],
-      "args": []
+      "args": [],
+      "returns": "u8"
     },
     {
       "name": "stakeNftToPool",
@@ -126,7 +128,8 @@
           "name": "tier",
           "type": "u8"
         }
-      ]
+      ],
+      "returns": "u8"
     },
     {
       "name": "withdrawNftFromPool",
@@ -172,7 +175,8 @@
           "name": "globalBump",
           "type": "u8"
         }
-      ]
+      ],
+      "returns": "u8"
     },
     {
       "name": "claimReward",
@@ -212,6 +216,105 @@
         {
           "name": "globalBump",
           "type": "u8"
+        }
+      ],
+      "returns": "u8"
+    },
+    {
+      "name": "mutBootcampNft",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "newNftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "globalAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingGlobal",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingNftInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakedTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "newStakedTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "burnAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintMetadata",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "globalBump",
+          "type": "u8"
+        },
+        {
+          "name": "juicingGlobalBump",
+          "type": "u8"
+        },
+        {
+          "name": "nftBump",
+          "type": "u8"
+        },
+        {
+          "name": "newNftId",
+          "type": "string"
         }
       ]
     }
@@ -305,41 +408,58 @@
           }
         ]
       }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Uninitialized",
+      "msg": "Uninitialized account"
     },
     {
-      "name": "StakingError",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Uninitialized"
-          },
-          {
-            "name": "InvalidSuperOwner"
-          },
-          {
-            "name": "InvalidUserPool"
-          },
-          {
-            "name": "InvalidNFTAddress"
-          },
-          {
-            "name": "InvalidWithdrawTime"
-          },
-          {
-            "name": "InsufficientRewardVault"
-          },
-          {
-            "name": "InvaliedMetadata"
-          },
-          {
-            "name": "MetadataCreatorParseError"
-          },
-          {
-            "name": "UnkownOrNotAllowedNFTCollection"
-          }
-        ]
-      }
+      "code": 6001,
+      "name": "InvalidSuperOwner",
+      "msg": "Invalid Super Owner"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidUserPool",
+      "msg": "Invalid User Pool Owner"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidNFTAddress",
+      "msg": "Invalid NFT Address"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidWithdrawTime",
+      "msg": "Invalid Withdraw Time"
+    },
+    {
+      "code": 6005,
+      "name": "InsufficientRewardVault",
+      "msg": "Insufficient Reward Token Balance"
+    },
+    {
+      "code": 6006,
+      "name": "InvaliedMetadata",
+      "msg": "Invalid Metadata Address"
+    },
+    {
+      "code": 6007,
+      "name": "MetadataCreatorParseError",
+      "msg": "Can't Parse The NFT's Creators"
+    },
+    {
+      "code": 6008,
+      "name": "UnkownOrNotAllowedNFTCollection",
+      "msg": "Unknown Collection Or The Collection Is Not Allowed"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidMutableRequest",
+      "msg": "Already converted to be mutable!"
     }
   ]
 }

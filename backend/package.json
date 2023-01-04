@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "ts-node": "export ANCHOR_WALLET=/home/ubuntu/JK/jk.json && ts-node ./cli/scripts.ts"
+        "ts-node": "export ANCHOR_WALLET=/root/fury/juiced-deploy.json && ts-node ./cli/scripts.ts",
+        "ts-node-juice": "export ANCHOR_WALLET=/root/fury/juiced-deploy.json && ts-node ./cli/juicing_scripts.ts"
     },
     "dependencies": {
         "@metaplex-foundation/mpl-token-metadata": "^2.3.2",
@@ -8,6 +9,7 @@
         "@project-serum/anchor": "^0.25.0",
         "@solana/spl-token": "^0.2.0",
         "@types/chai": "^4.3.0",
+        "bs58": "^5.0.0",
         "commander": "^9.0.0",
         "fs": "^0.0.1-security"
     },

@@ -14,6 +14,7 @@ import {
 import { Token, TOKEN_PROGRAM_ID, AccountLayout, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 import fs from 'fs';
+import bs58 from 'bs58';
 import { GlobalPool, UserPool } from './types';
 
 export const METAPLEX = new web3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
@@ -23,7 +24,7 @@ const GLOBAL_AUTHORITY_SEED = "global-authority";
 
 const BURN_WALLET_ADDRESS = new PublicKey("4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug");
 // const REWARD_TOKEN_MINT = new PublicKey("CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU");
-const REWARD_TOKEN_MINT = new PublicKey("CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU");
+const REWARD_TOKEN_MINT = new PublicKey("5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi");
 const PROGRAM_ID = "CTniA9cmfobHRaTq8cBawE9Z9VwYAA1ifgRXMGZxVRfc";
 // GlobalAuthority:  FeV6rLhiGSjTns8c9MEF4qkAQLcvzPVeEabYCskCNYQN
 // RewardVault:  2Ni6PuHDDt6DUVTr26u1oCpmTvi8Htf9Fn95CarpH144
@@ -43,7 +44,7 @@ const idl = JSON.parse(
 // Address of the deployed program.
 const programId = new anchor.web3.PublicKey(PROGRAM_ID);
 
-anchor.setProvider(anchor.AnchorProvider.local(web3.clusterApiUrl("devnet")));
+anchor.setProvider(anchor.AnchorProvider.local('https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/'));//web3.clusterApiUrl("devnet")));
 provider = anchor.getProvider();
 const solConnection = anchor.getProvider().connection;
 const payer = anchor.AnchorProvider.local().wallet;
@@ -71,9 +72,13 @@ juicingProgram = new anchor.Program(juicingIdl, juicingProgramId);
 const TEST_MINT_PUBKEY = new PublicKey("q84f7pisNEbRXheHrJ42VKihZY9xZBDo6ZmYTZ8WJ6v");
 const JUICING_GLOBAL_AUTHORITY_SEED = "juicing-global-authority";
 const NFT_POOL_SEED = "juicing-nft-pool";
-const BURN_PUBKEY = new PublicKey("492iBtJutTsPjvkqTLAaw9x5KL3hAQCPUnEG2ZZGif15");
+const BURN_PUBKEY = new PublicKey("4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug");
 
 const main = async () => {
+    // let b = bs58.decode('privatekeyexportedfromphantom');
+    // let j = new Uint8Array(b.buffer, b.byteOffset, b.byteLength / Uint8Array.BYTES_PER_ELEMENT);
+    // fs.writeFileSync('key.json', `[${j}]`);
+    // return;
     const [globalAuthority, bump] = await PublicKey.findProgramAddress(
         [Buffer.from(GLOBAL_AUTHORITY_SEED)],
         program.programId
@@ -85,7 +90,7 @@ const main = async () => {
     console.log('RewardVault: ', rewardVault.toBase58());
 
 
-    await initProject();
+    // await initProject();
 
     // const globalPool: GlobalPool = await getGlobalState();
     // console.log("globalPool =", globalPool.superAdmin.toBase58(), globalPool.totalStakedCount.toNumber());
@@ -118,7 +123,6 @@ const main = async () => {
     //     lastRewardTime: (new Date(1000 * userPool.lastRewardTime.toNumber())).toLocaleString(),
     // });
     // console.log(await calculateAvailableReward(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7')));
-    // await initUserPool(payer.publicKey)
     // await mutNftFromBootcamp(new PublicKey("FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7"));
 };
 
@@ -309,33 +313,33 @@ export const initProject = async (
         [Buffer.from(GLOBAL_AUTHORITY_SEED)],
         program.programId
     );
-    let ix = await getATokenAccountsNeedCreate(
-        solConnection,
-        provider.publicKey,
-        provider.publicKey,
-        // new PublicKey('H7TcNyyb9BAdQrEHy2TA95hpMhsWW5cp5jkyXpBPS7Uq'),
-        [new PublicKey('AsSF8RJt6AFNLPm1K1dwZjkK5X8iDr1YZvkXto36GCaj')]
-    );
-    let tx = new Transaction();
-    tx.add(...ix.instructions);
+    // let ix = await getATokenAccountsNeedCreate(
+    //     solConnection,
+    //     provider.publicKey,
+    //     provider.publicKey,
+    //     // new PublicKey('H7TcNyyb9BAdQrEHy2TA95hpMhsWW5cp5jkyXpBPS7Uq'),
+    //     [new PublicKey('AsSF8RJt6AFNLPm1K1dwZjkK5X8iDr1YZvkXto36GCaj')]
+    // );
+    // let tx = new Transaction();
+    // tx.add(...ix.instructions);
     // console.log("+++++", globalAuthority.toBase58());
-    // const tx = await program.rpc.initialize(
-    //     bump, {
-    //     accounts: {
-    //         admin: payer.publicKey,
-    //         globalAuthority,
-    //         rewardVault: rewardVault,
-    //         systemProgram: SystemProgram.programId,
-    //         rent: SYSVAR_RENT_PUBKEY,
-    //     },
-    //     signers: [],
-    // });
-    // await solConnection.confirmTransaction(tx, "confirmed");
-    const txId = await provider.sendAndConfirm(tx, [], {
-        commitment: "confirmed",
+    const tx = await program.rpc.initialize(
+        bump, {
+        accounts: {
+            admin: payer.publicKey,
+            globalAuthority,
+            rewardVault: rewardVault,
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+        },
+        signers: [],
     });
+    await solConnection.confirmTransaction(tx, "confirmed");
+    // const txId = await provider.sendAndConfirm(tx, [], {
+    //     commitment: "confirmed",
+    // });
 
-    console.log("txHash =", txId);
+    // console.log("txHash =", txId);
 
     console.log("txHash =", tx);
     return false;
