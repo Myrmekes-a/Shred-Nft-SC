@@ -39,7 +39,11 @@ export default function NFTJuicedCard({
         () => updatePage()
       );
     } else {
-      await nftToMutable(wallet, new PublicKey(address), () => updatePage());
+      await nftToMutable(wallet, new PublicKey(address),
+        () => setLoading(true),
+        () => setLoading(false),
+        () => updatePage()
+      );
     }
   };
 

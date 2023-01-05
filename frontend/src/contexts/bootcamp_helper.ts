@@ -11,7 +11,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { GlobalPool, UserPool } from "./bootcamp_types";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { IDL } from "./shred_bootcamp";
-import { JUICEIDL } from "./juiced_ape_evolution";
+import { IDL as JUICEIDL } from "./juiced_ape_evolution";
 import { errorAlert, successAlert } from "../components/toastGroup";
 import {
   DECIMALS,
@@ -49,6 +49,8 @@ export const NFT_POOL_SEED = "juicing-nft-pool";
 export const nftToMutable = async (
   wallet: WalletContextState,
   stakedNftMint: PublicKey,
+  startLoading: Function,
+  closeLoading: Function,
   updatePage: Function
 ) => {
   if (!wallet.publicKey) return;
@@ -67,154 +69,160 @@ export const nftToMutable = async (
     provider
   );
 
-  const [juicingGlobal, juicingBump] = await PublicKey.findProgramAddress(
-    [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
-    juicingProgram.programId
-  );
-  console.log("JuicingGlobalAuthority: ", juicingGlobal.toBase58());
-
-  const [nftPoolKey, nftBump] = await PublicKey.findProgramAddress(
-    [Buffer.from(NFT_POOL_SEED), stakedNftMint.toBuffer()],
-    juicingProgram.programId
-  );
-  console.log("nftPoolKey: ", nftPoolKey.toBase58());
-
-  let nftPoolAccount = await solConnection.getAccountInfo(nftPoolKey);
-  // console.log("nftPoolAccout", nftPoolAccount);
-  if (nftPoolAccount === null || nftPoolAccount.data === null) {
-    console.log("Creating NFT Pool...");
-    await initNftPool(wallet, stakedNftMint);
-  }
-
-  let newNftMint;
-
-  for (let i = 0; i < corresponding.length; i++) {
-    if (corresponding[i].oldPubkey === stakedNftMint.toString()) {
-      newNftMint = corresponding[i].newPubkey;
-      break;
-    }
-    continue;
-  }
-
-  if (newNftMint === undefined) {
-    console.log("No matching NFT");
-    return;
-  }
-
-  // let stakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, stakedNftMint);
-  let oldNftAta = await getATokenAccountsNeedCreate(
-    solConnection,
-    wallet.publicKey,
-    wallet.publicKey,
-    [stakedNftMint]
-  );
-  console.log("stakedATA", oldNftAta.destinationAccounts[0].toBase58());
-
-  // let newStakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, new PublicKey(newNftMint));
-  let newNftAta = await getATokenAccountsNeedCreate(
-    solConnection,
-    wallet.publicKey,
-    wallet.publicKey,
-    [new PublicKey(newNftMint)]
-  );
-  console.log("NewNftATA >>", newNftAta.destinationAccounts[0].toBase58());
-
-  let nftVault = await getATokenAccountsNeedCreate(
-    solConnection,
-    wallet.publicKey,
-    juicingGlobal,
-    [new PublicKey(newNftMint)]
-  );
-  console.log("NFTVault >>", nftVault.destinationAccounts[0].toBase58());
-
-  let newNftAccount = await solConnection.getAccountInfo(
-    nftVault.destinationAccounts[0]
-  );
-  if (newNftAccount == null) {
-    console.log("No NFT in the NFT Vault!");
-    return;
-  }
-
-  let burnAccount = await getATokenAccountsNeedCreate(
-    solConnection,
-    wallet.publicKey,
-    BURN_WALLET_ADDRESS,
-    [stakedNftMint]
-  );
-  console.log("BurnAccout", burnAccount.destinationAccounts[0].toBase58());
-
-  const oldMetadata = await getMetadata(stakedNftMint);
-  const newMetadata = await getMetadata(new PublicKey(newNftMint));
-  //Another method that can be used to fetch address of the metadata account is as bellows
-  // const metadataAccount = await Metadata.getPDA(new PublicKey(newNftAddress));
-
-  let {
-    metadata: { Metadata },
-  } = programs;
-  const metadata = await Metadata.load(solConnection, newMetadata);
-  let newNftName = metadata.data.data.name;
-
-  let idx = newNftName.indexOf("#");
-  if (idx === -1) {
-    return;
-  }
-
-  let newNftId = newNftName.slice(idx + 1);
-
-  console.log("Owner: ", wallet.publicKey.toBase58());
-
-  let tx = new Transaction();
-
-  if (nftVault.instructions.length > 0) tx.add(...nftVault.instructions);
-  console.log("##NFT Vault Ix = ", nftVault.instructions[0]);
-  if (oldNftAta.instructions.length > 0) tx.add(...oldNftAta.instructions);
-  console.log("##Old NFT ATA Ix = ", oldNftAta.instructions[0]);
-  if (newNftAta.instructions.length > 0) tx.add(...newNftAta.instructions);
-  console.log("##New NFT ATA Ix = ", newNftAta.instructions[0]);
-  if (burnAccount.instructions.length > 0) tx.add(...burnAccount.instructions);
-  console.log("##Burn Account Ix = ", burnAccount.instructions[0]);
-
-  tx.add(
-    juicingProgram.instruction.nftToMutable(juicingBump, nftBump, newNftId, {
-      accounts: {
-        owner: wallet.publicKey,
-        nftMint: stakedNftMint,
-        globalAuthority: juicingGlobal,
-        nftPool: nftPoolKey,
-        userTokenAccount: oldNftAta.destinationAccounts[0],
-        newUserTokenAccount: newNftAta.destinationAccounts[0],
-        nftVault: nftVault.destinationAccounts[0],
-        burnAccount: burnAccount.destinationAccounts[0],
-        mintMetadata: oldMetadata,
-        tokenMetadataProgram: METAPLEX,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      },
-      instructions: [],
-      signers: [],
-    })
-  );
-  let { blockhash } = await provider.connection.getLatestBlockhash("confirmed");
-  tx.feePayer = wallet.publicKey as PublicKey;
-  tx.recentBlockhash = blockhash;
-  if (wallet.signTransaction !== undefined) {
-    const signedTransaction = await wallet.signTransaction(tx);
-
-    let txId = await provider.connection.sendRawTransaction(
-      signedTransaction.serialize(),
-      {
-        skipPreflight: true,
-        maxRetries: 3,
-        preflightCommitment: "confirmed",
-      }
+  try {
+    startLoading();
+    const [juicingGlobal, juicingBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
+      juicingProgram.programId
     );
+    console.log("JuicingGlobalAuthority: ", juicingGlobal.toBase58());
 
-    console.log(txId, "==> txId");
+    const [nftPoolKey, nftBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(NFT_POOL_SEED), stakedNftMint.toBuffer()],
+      juicingProgram.programId
+    );
+    console.log("nftPoolKey: ", nftPoolKey.toBase58());
 
-    await solConnection.confirmTransaction(txId, "finalized");
+    let nftPoolAccount = await solConnection.getAccountInfo(nftPoolKey);
+    // console.log("nftPoolAccout", nftPoolAccount);
+    if (nftPoolAccount === null || nftPoolAccount.data === null) {
+      console.log("Creating NFT Pool...");
+      await initNftPool(wallet, stakedNftMint);
+    }
+
+    let newNftMint;
+
+    for (let i = 0; i < corresponding.length; i++) {
+      if (corresponding[i].oldPubkey === stakedNftMint.toString()) {
+        newNftMint = corresponding[i].newPubkey;
+        break;
+      }
+      continue;
+    }
+
+    if (newNftMint === undefined) {
+      console.log("No matching NFT");
+      return;
+    }
+
+    // let stakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, stakedNftMint);
+    let oldNftAta = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      wallet.publicKey,
+      [stakedNftMint]
+    );
+    console.log("stakedATA", oldNftAta.destinationAccounts[0].toBase58());
+
+    // let newStakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, new PublicKey(newNftMint));
+    let newNftAta = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      wallet.publicKey,
+      [new PublicKey(newNftMint)]
+    );
+    console.log("NewNftATA >>", newNftAta.destinationAccounts[0].toBase58());
+
+    let nftVault = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      juicingGlobal,
+      [new PublicKey(newNftMint)]
+    );
+    console.log("NFTVault >>", nftVault.destinationAccounts[0].toBase58());
+
+    let newNftAccount = await solConnection.getAccountInfo(
+      nftVault.destinationAccounts[0]
+    );
+    if (newNftAccount == null) {
+      console.log("No NFT in the NFT Vault!");
+      return;
+    }
+
+    let burnAccount = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      BURN_WALLET_ADDRESS,
+      [stakedNftMint]
+    );
+    console.log("BurnAccout", burnAccount.destinationAccounts[0].toBase58());
+
+    const oldMetadata = await getMetadata(stakedNftMint);
+    const newMetadata = await getMetadata(new PublicKey(newNftMint));
+    //Another method that can be used to fetch address of the metadata account is as bellows
+    // const metadataAccount = await Metadata.getPDA(new PublicKey(newNftAddress));
+
+    let {
+      metadata: { Metadata },
+    } = programs;
+    const metadata = await Metadata.load(solConnection, newMetadata);
+    let newNftName = metadata.data.data.name;
+
+    let idx = newNftName.indexOf("#");
+    if (idx === -1) {
+      return;
+    }
+
+    let newNftId = newNftName.slice(idx + 1);
+
+    console.log("Owner: ", wallet.publicKey.toBase58());
+
+    let tx = new Transaction();
+
+    if (nftVault.instructions.length > 0) tx.add(...nftVault.instructions);
+    console.log("##NFT Vault Ix = ", nftVault.instructions[0]);
+    if (oldNftAta.instructions.length > 0) tx.add(...oldNftAta.instructions);
+    console.log("##Old NFT ATA Ix = ", oldNftAta.instructions[0]);
+    if (newNftAta.instructions.length > 0) tx.add(...newNftAta.instructions);
+    console.log("##New NFT ATA Ix = ", newNftAta.instructions[0]);
+    if (burnAccount.instructions.length > 0) tx.add(...burnAccount.instructions);
+    console.log("##Burn Account Ix = ", burnAccount.instructions[0]);
+
+    tx.add(
+      juicingProgram.instruction.nftToMutable(juicingBump, nftBump, newNftId, {
+        accounts: {
+          owner: wallet.publicKey,
+          nftMint: stakedNftMint,
+          globalAuthority: juicingGlobal,
+          nftPool: nftPoolKey,
+          userTokenAccount: oldNftAta.destinationAccounts[0],
+          newUserTokenAccount: newNftAta.destinationAccounts[0],
+          nftVault: nftVault.destinationAccounts[0],
+          burnAccount: burnAccount.destinationAccounts[0],
+          mintMetadata: oldMetadata,
+          tokenMetadataProgram: METAPLEX,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        },
+        instructions: [],
+        signers: [],
+      })
+    );
+    let { blockhash } = await provider.connection.getLatestBlockhash("confirmed");
+    tx.feePayer = wallet.publicKey as PublicKey;
+    tx.recentBlockhash = blockhash;
+    if (wallet.signTransaction !== undefined) {
+      const signedTransaction = await wallet.signTransaction(tx);
+
+      let txId = await provider.connection.sendRawTransaction(
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+          maxRetries: 3,
+          preflightCommitment: "confirmed",
+        }
+      );
+
+      console.log(txId, "==> txId");
+
+      await solConnection.confirmTransaction(txId, "finalized");
+    }
+    closeLoading();
+    console.log("Your transaction signature", tx);
+    updatePage();
+  } catch (error) {
+    closeLoading();
+    console.log("Error-----", error);
   }
-  // closeLoading();
-  console.log("Your transaction signature", tx);
-  updatePage();
 };
 
 export const mutNftFromBootcamp = async (
