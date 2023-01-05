@@ -17,6 +17,7 @@ import { IMMUTABLE_COLLECTION, MUTABLE_COLLECTION } from "../config";
 import Footer from "../components/Footer";
 import fire from "../assets/img/fire.png";
 import mutable from "../assets/img/mutable.png";
+import SkeletonCard from "../components/SkeletonCard";
 
 export default function Juiced() {
   // ------------page state-----------
@@ -26,18 +27,13 @@ export default function Juiced() {
   const [userJuicedNFTs, setUserJuicedNFTs] = useState([]);
   const [walletNFTs, setWalletNFTs] = useState([]);
   const [walleMutabletNFTs, setWalletMutableNFTs] = useState([]);
+  
+  const [stakedLoading, setStakedLoading] = useState(false);
+  const [unstakedLoading, setUnStakedLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  // const [changeNftName, setChangeNftName] = useState();
-  // const [totlaGlabalStakedCnt, setTotalGlobalStakedCnt] = useState(0);
-
-  // const getGlobalStateNFTs = async () => {
-  //   const bootcamp_list = await getGlobalBootCampState();
-  //   console.log(bootcamp_list);
-  // };
-
-  // useEffect(() => console.log(rightNftImage), [rightNftImage]);
 
   const getStateNFTs = async () => {
+    setStakedLoading(true);
     let nftBootCampDump = [];
     let nftJuicedDump = [];
     const bootcamp_list = await getUserBootCampPoolState(wallet.publicKey);
@@ -59,6 +55,9 @@ export default function Juiced() {
                 // isMutable: nft.data.isMutable,
                 // legendary: legendaryValidatie(json),
               });
+            }).catch((e) => {
+              console.log("Error while fetching", nft.mint);
+              console.log(e);
             });
         }
 
@@ -83,6 +82,9 @@ export default function Juiced() {
                     // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
                     // legendary: legendaryValidatie(json),
                   });
+                }).catch((e) => {
+                  console.log("Error while fetching", nft.mint);
+                  console.log(e);
                 });
             }
           }
@@ -104,6 +106,7 @@ export default function Juiced() {
 
     setUserStakedBootCampNFTs(nftBootCampDump);
     setUserJuicedNFTs(nftJuicedDump);
+    setStakedLoading(false);
   };
 
   const mutableNft = async () => {
@@ -142,55 +145,70 @@ export default function Juiced() {
   };
 
   const getMyNfts = async () => {
+    setUnStakedLoading(true);
     const list = await getMyNft(wallet);
     let userNFTList = [];
     let nftJuicedDump = [];
+    setUnStakedLoading(false);
     if (list) {
-      for (let i = 0; i < list.length; i++) {
-        const nft = await getNftMetaData(new PublicKey(list[i].mint));
+      console.log(list);
+      for (let nft of list) {
         if (
-          nft.data.data.creators[0].address === IMMUTABLE_COLLECTION ||
-          nft.data.data.creators[0].address === MUTABLE_COLLECTION
+          nft.data.creators && (
+          nft.data.creators[0]?.address === IMMUTABLE_COLLECTION ||
+          nft.data.creators[0]?.address === MUTABLE_COLLECTION
+          )
         ) {
-          if (nft.data.data.uri) {
-            await fetch(nft.data.data.uri)
+          if (nft.data.uri) {
+            await fetch(nft.data.uri)
               .then((resp) => resp.json())
               .then((json) => {
                 userNFTList.push({
                   name: json.name,
                   image: json.image,
-                  mint: nft.data.mint,
-                  address: list[i].mint,
-                  isMutable: nft.data.isMutable,
+                  address: nft.mint,
+                  isMutable: nft.isMutable,
                   // legendary: legendaryValidatie(json),
                 });
+                setWalletNFTs(userNFTList);
+              }).catch((e) => {
+                console.log("Error while fetching", nft.mint);
+                console.log(e);
               });
           }
 
-          for (let j = 0; j < nftList.length; j++) {
-            if (nftList[j].oldPubkey === list[i].mint) {
-              const newNft = await getNftMetaData(
-                new PublicKey(nftList[j].newPubkey)
-              );
+          if (!nft.isMutable)
+            for (let j = 0; j < nftList.length; j++) {
+              if (nftList[j].oldPubkey === nft.mint) {
+                const newNft = await getNftMetaData(
+                  new PublicKey(nftList[j].newPubkey)
+                );
 
-              if (newNft.data.data.uri) {
-                await fetch(newNft.data.data.uri)
-                  .then((resp) => resp.json())
-                  .then((json) => {
-                    nftJuicedDump.push({
-                      name: json.name,
-                      image: json.image,
-                      address: nftList[j].newPubkey,
-                      oldaddress: list[i].mint,
-                      // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
-                      // legendary: legendaryValidatie(json),
+                if (newNft.data.data.uri) {
+                  await fetch(newNft.data.data.uri)
+                    .then((resp) => resp.json())
+                    .then((json) => {
+                      nftJuicedDump.push({
+                        name: json.name,
+                        image: json.image,
+                        address: nftList[j].newPubkey,
+                        oldaddress: nft.mint,
+                        // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
+                        // legendary: legendaryValidatie(json),
+                      });
+                    }).catch((e) => {
+                      console.log("Error while fetching", nftList[j].newPubkey);
+                      console.log(e);
                     });
-                  });
+                }
+                break;
               }
             }
-          }
         }
       }
+
+      console.log(userNFTList);
+      console.log(nftJuicedDump);
       setWalletMutableNFTs(nftJuicedDump);
       setWalletNFTs(userNFTList);
     }
@@ -199,6 +217,11 @@ export default function Juiced() {
   // const getTest = async () => {};
 
   useEffect(() => {
+    if (!wallet.publicKey) {
+      setWalletMutableNFTs([]);
+      setWalletNFTs([]);
+      return;
+    }
     getMyNfts();
     getStateNFTs();
     // eslint-disable-next-line
@@ -250,6 +273,14 @@ export default function Juiced() {
             <h3>NFT's staked in Bootcamp</h3>
           </div>
           <div className="nft-list">
+          {stakedLoading ? (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : (
+            <>
             {userStakedBootCampNFTs.length !== 0 &&
               userStakedBootCampNFTs.map((item, key) => (
                 <NFTJuicedCard
@@ -262,11 +293,21 @@ export default function Juiced() {
                   stake
                 />
               ))}
+            </>
+          )}
           </div>
           <div className="h-sub-title">
             <h3>NFTs in your Wallet</h3>
           </div>
           <div className="nft-list">
+          {unstakedLoading ? (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : (
+            <>
             {walletNFTs.length !== 0 &&
               walletNFTs.map((item, key) => (
                 <NFTJuicedCard
@@ -278,6 +319,8 @@ export default function Juiced() {
                   nftList={walleMutabletNFTs}
                 />
               ))}
+            </>
+          )}
           </div>
         </div>
         <div className="soon">
