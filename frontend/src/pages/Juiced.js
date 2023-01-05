@@ -27,10 +27,11 @@ export default function Juiced() {
   const [userJuicedNFTs, setUserJuicedNFTs] = useState([]);
   const [walletNFTs, setWalletNFTs] = useState([]);
   const [walleMutabletNFTs, setWalletMutableNFTs] = useState([]);
-  
+
   const [stakedLoading, setStakedLoading] = useState(false);
   const [unstakedLoading, setUnStakedLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [_forceRender, setForceRender] = useState(false);
 
   const getStateNFTs = async () => {
     setStakedLoading(true);
@@ -55,7 +56,8 @@ export default function Juiced() {
                 // isMutable: nft.data.isMutable,
                 // legendary: legendaryValidatie(json),
               });
-            }).catch((e) => {
+            })
+            .catch((e) => {
               console.log("Error while fetching", nft.mint);
               console.log(e);
             });
@@ -82,7 +84,8 @@ export default function Juiced() {
                     // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
                     // legendary: legendaryValidatie(json),
                   });
-                }).catch((e) => {
+                })
+                .catch((e) => {
                   console.log("Error while fetching", nft.mint);
                   console.log(e);
                 });
@@ -145,19 +148,21 @@ export default function Juiced() {
   };
 
   const getMyNfts = async () => {
+    setWalletMutableNFTs([]);
+    setWalletNFTs([]);
+    setForceRender((old) => !old);
     setUnStakedLoading(true);
+
     const list = await getMyNft(wallet);
     let userNFTList = [];
     let nftJuicedDump = [];
-    setUnStakedLoading(false);
     if (list) {
       console.log(list);
       for (let nft of list) {
         if (
-          nft.data.creators && (
-          nft.data.creators[0]?.address === IMMUTABLE_COLLECTION ||
-          nft.data.creators[0]?.address === MUTABLE_COLLECTION
-          )
+          nft.data.creators &&
+          (nft.data.creators[0]?.address === IMMUTABLE_COLLECTION ||
+            nft.data.creators[0]?.address === MUTABLE_COLLECTION)
         ) {
           if (nft.data.uri) {
             await fetch(nft.data.uri)
@@ -170,8 +175,11 @@ export default function Juiced() {
                   isMutable: nft.isMutable,
                   // legendary: legendaryValidatie(json),
                 });
+                console.log("->", userNFTList.length);
                 setWalletNFTs(userNFTList);
-              }).catch((e) => {
+                setForceRender((old) => !old);
+              })
+              .catch((e) => {
                 console.log("Error while fetching", nft.mint);
                 console.log(e);
               });
@@ -196,7 +204,8 @@ export default function Juiced() {
                         // tier: bootcamp_list.stakedMints[i].tier.toNumber(),
                         // legendary: legendaryValidatie(json),
                       });
-                    }).catch((e) => {
+                    })
+                    .catch((e) => {
                       console.log("Error while fetching", nftList[j].newPubkey);
                       console.log(e);
                     });
@@ -212,6 +221,7 @@ export default function Juiced() {
       setWalletMutableNFTs(nftJuicedDump);
       setWalletNFTs(userNFTList);
     }
+    setUnStakedLoading(false);
   };
 
   // const getTest = async () => {};
@@ -220,6 +230,8 @@ export default function Juiced() {
     if (!wallet.publicKey) {
       setWalletMutableNFTs([]);
       setWalletNFTs([]);
+      setUserStakedBootCampNFTs([]);
+      setUserJuicedNFTs([]);
       return;
     }
     getMyNfts();
@@ -273,41 +285,33 @@ export default function Juiced() {
             <h3>NFT's staked in Bootcamp</h3>
           </div>
           <div className="nft-list">
-          {stakedLoading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : (
-            <>
-            {userStakedBootCampNFTs.length !== 0 &&
-              userStakedBootCampNFTs.map((item, key) => (
-                <NFTJuicedCard
-                  key={key}
-                  image={item.image}
-                  title={item.name}
-                  address={item.address}
-                  mutable={item.isMutable}
-                  nftList={userJuicedNFTs}
-                  stake
-                />
-              ))}
-            </>
-          )}
+            {stakedLoading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : (
+              <>
+                {userStakedBootCampNFTs.length !== 0 &&
+                  userStakedBootCampNFTs.map((item, key) => (
+                    <NFTJuicedCard
+                      key={key}
+                      image={item.image}
+                      title={item.name}
+                      address={item.address}
+                      mutable={item.isMutable}
+                      nftList={userJuicedNFTs}
+                      stake
+                    />
+                  ))}
+              </>
+            )}
           </div>
           <div className="h-sub-title">
             <h3>NFTs in your Wallet</h3>
           </div>
           <div className="nft-list">
-          {unstakedLoading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : (
-            <>
             {walletNFTs.length !== 0 &&
               walletNFTs.map((item, key) => (
                 <NFTJuicedCard
@@ -319,9 +323,14 @@ export default function Juiced() {
                   nftList={walleMutabletNFTs}
                 />
               ))}
-            </>
-          )}
           </div>
+          {unstakedLoading && 
+            <div className="nft-list">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          }
         </div>
         <div className="soon">
           <h2>The Juicing is happening soon...</h2>
