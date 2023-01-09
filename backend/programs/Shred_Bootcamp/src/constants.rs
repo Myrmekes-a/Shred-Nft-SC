@@ -17,4 +17,5 @@ pub const REWARD_TOKEN_MINT_PUBKEY: &str = "5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F
 pub const MIN_REWARD_DEPOSIT_AMOUNT: u64 = 10_000;
 
 pub const COLLECTION_ADDRESS: &str = "36MrAKpGGp8ysANfTNCUswCH2qdCAmGy3pTdd8Ts8vCH";
+pub const NEW_COLLECTION_ADDRESS: &str = "3eTprkijjwjx1jd17UrVHzr6GnQqf3mtV3FXqZj16fVL";
 pub const BURN_WALLET_ADDRESS: &str = "4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug";
