@@ -1,4 +1,4 @@
-export type StakingProgram = {
+export type ShredStaking = {
   version: "0.1.0";
   name: "shred_staking";
   instructions: [
@@ -200,6 +200,104 @@ export type StakingProgram = {
           type: "u8";
         }
       ];
+    },
+    {
+      name: "mutBootcampNft";
+      accounts: [
+        {
+          name: "owner";
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: "userPool";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "nftMint";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "newNftMint";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "globalAuthority";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "juicingGlobal";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "juicingNftInfo";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "stakedTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "newStakedTokenAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "nftVault";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "burnAccount";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "juicingProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "mintMetadata";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenMetadataProgram";
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: "globalBump";
+          type: "u8";
+        },
+        {
+          name: "juicingGlobalBump";
+          type: "u8";
+        },
+        {
+          name: "nftBump";
+          type: "u8";
+        },
+        {
+          name: "newNftId";
+          type: "string";
+        }
+      ];
     }
   ];
   accounts: [
@@ -322,11 +420,16 @@ export type StakingProgram = {
       code: 6008;
       name: "UnkownOrNotAllowedNFTCollection";
       msg: "Unknown Collection Or The Collection Is Not Allowed";
+    },
+    {
+      code: 6009;
+      name: "InvalidMutableRequest";
+      msg: "Already converted to be mutable!";
     }
   ];
 };
 
-export const IDL: StakingProgram = {
+export const IDL: ShredStaking = {
   version: "0.1.0",
   name: "shred_staking",
   instructions: [
@@ -529,6 +632,104 @@ export const IDL: StakingProgram = {
         },
       ],
     },
+    {
+      name: "mutBootcampNft",
+      accounts: [
+        {
+          name: "owner",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "userPool",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "nftMint",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "newNftMint",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "globalAuthority",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "juicingGlobal",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "juicingNftInfo",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "stakedTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "newStakedTokenAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "nftVault",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "burnAccount",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "juicingProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "mintMetadata",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenMetadataProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "globalBump",
+          type: "u8",
+        },
+        {
+          name: "juicingGlobalBump",
+          type: "u8",
+        },
+        {
+          name: "nftBump",
+          type: "u8",
+        },
+        {
+          name: "newNftId",
+          type: "string",
+        },
+      ],
+    },
   ],
   accounts: [
     {
@@ -650,6 +851,11 @@ export const IDL: StakingProgram = {
       code: 6008,
       name: "UnkownOrNotAllowedNFTCollection",
       msg: "Unknown Collection Or The Collection Is Not Allowed",
+    },
+    {
+      code: 6009,
+      name: "InvalidMutableRequest",
+      msg: "Already converted to be mutable!",
     },
   ],
 };

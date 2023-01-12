@@ -13,6 +13,7 @@ import {
 import { GlobalPool, UserPool } from "./types";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { IDL } from "./shred_staking";
+import { IDL as JUICEIDL } from "./juiced_ape_evolution";
 import { programs } from "@metaplex/js";
 import { errorAlert, successAlert } from "../components/toastGroup";
 import {
@@ -28,8 +29,12 @@ import {
   solConnection,
   METAPLEX,
   DIAMOND_REWARD_AMOUNT,
+  JUICING_PROGRAM_ID,
+  JUICING_GLOBAL_AUTHORITY_SEED,
+  BURN_WALLET_ADDRESS,
 } from "../config";
-import { getMetadata } from "./bootcamp_helper";
+import corresponding from "./old_to_new.json";
+import { NFT_POOL_SEED, getMetadata, initNftPool } from "./bootcamp_helper";
 
 export const getNftMetaData = async (nftMintPk: PublicKey) => {
   let {
@@ -38,6 +43,207 @@ export const getNftMetaData = async (nftMintPk: PublicKey) => {
   let metadataAccount = await Metadata.getPDA(nftMintPk);
   const metadat = await Metadata.load(solConnection, metadataAccount);
   return metadat;
+};
+
+export const mutNftFromStaking = async (
+  wallet: WalletContextState,
+  stakedNftMint: PublicKey,
+  startLoading: Function,
+  closeLoading: Function,
+  updatePage: Function
+) => {
+  if (!wallet.publicKey) return;
+  let cloneWindow: any = window;
+
+  let provider = new anchor.Provider(
+    solConnection,
+    cloneWindow["solana"],
+    anchor.Provider.defaultOptions()
+  );
+
+  const program = new anchor.Program(IDL as anchor.Idl, PROGRAM_ID, provider);
+
+  const juicingProgram = new anchor.Program(
+    JUICEIDL as anchor.Idl,
+    JUICING_PROGRAM_ID,
+    provider
+  );
+  try {
+    startLoading();
+    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
+      [Buffer.from(GLOBAL_AUTHORITY_SEED)],
+      program.programId
+    );
+
+    const [juicingGlobal, juicingBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
+      juicingProgram.programId
+    );
+
+    let userPoolKey = await PublicKey.createWithSeed(
+      wallet.publicKey,
+      "user-pool",
+      program.programId
+    );
+
+    let poolAccount = await solConnection.getAccountInfo(userPoolKey);
+    if (poolAccount === null || poolAccount.data === null) {
+      await initUserPool(wallet);
+    }
+
+    const [nftPoolKey, nftBump] = await PublicKey.findProgramAddress(
+      [Buffer.from(NFT_POOL_SEED), stakedNftMint.toBuffer()],
+      juicingProgram.programId
+    );
+    // console.log("nftPoolKey: ", nftPoolKey.toBase58());
+
+    let nftPoolAccount = await solConnection.getAccountInfo(nftPoolKey);
+    // console.log("nftPoolAccout", nftPoolAccount);
+    if (nftPoolAccount === null || nftPoolAccount.data === null) {
+      console.log("Creating NFT Pool...");
+      await initNftPool(wallet, stakedNftMint);
+    }
+
+    // let corresponding = Name;
+    let newNftMint;
+
+    for (let i = 0; i < corresponding.length; i++) {
+      if (corresponding[i].oldPubkey === stakedNftMint.toString()) {
+        newNftMint = corresponding[i].newPubkey;
+        break;
+      }
+      continue;
+    }
+
+    if (newNftMint === undefined) {
+      console.log("No matching NFT");
+      return;
+    }
+
+    // let stakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, stakedNftMint);
+    let oldNftAta = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      globalAuthority,
+      [stakedNftMint]
+    );
+    // console.log("stakedATA", oldNftAta.destinationAccounts[0].toBase58());
+
+    // let newStakedTokenAccount = await getAssociatedTokenAccount(globalAuthority, new PublicKey(newNftMint));
+    let newNftAta = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      globalAuthority,
+      [new PublicKey(newNftMint)]
+    );
+
+    let { instructions, destinationAccounts } =
+      await getATokenAccountsNeedCreate(
+        solConnection,
+        wallet.publicKey,
+        juicingGlobal,
+        [new PublicKey(newNftMint)]
+      );
+
+    // console.log("NFT Vault", destinationAccounts[0].toBase58());
+
+    let ret = await getATokenAccountsNeedCreate(
+      solConnection,
+      wallet.publicKey,
+      BURN_WALLET_ADDRESS,
+      [stakedNftMint]
+    );
+
+    let newNftAccount = await solConnection.getAccountInfo(
+      destinationAccounts[0]
+    );
+
+    if (newNftAccount == null) {
+      console.log("No NFT in the NFT Vault!");
+      closeLoading();
+      return;
+    }
+
+    const oldMetadata = await getMetadata(stakedNftMint);
+    const newMetadata = await getMetadata(new PublicKey(newNftMint));
+    console.log("Metadata!!!!!!");
+    //Another method that can be used to fetch address of the metadata account is as bellows
+    // const metadataAccount = await Metadata.getPDA(new PublicKey(newNftAddress));
+
+    let {
+      metadata: { Metadata },
+    } = programs;
+    const metadata = await Metadata.load(solConnection, newMetadata);
+    let newNftName = metadata.data.data.name;
+
+    console.log("NAME!!!!!!!");
+    let idx = newNftName.indexOf("#");
+    if (idx === -1) {
+      console.log("No matching NFT!");
+      return;
+    }
+
+    let newNftId = newNftName.slice(idx + 1);
+    console.log("NewNFTID!!!!!!!!!", newNftId);
+
+    let tx = new Transaction();
+
+    if (instructions.length > 0) tx.add(instructions[0]);
+    if (ret.instructions.length > 0) tx.add(ret.instructions[0]);
+    if (oldNftAta.instructions.length > 0) tx.add(oldNftAta.instructions[0]);
+    if (newNftAta.instructions.length > 0) tx.add(newNftAta.instructions[0]);
+
+    tx.add(
+      program.instruction.mutBootcampNft(bump, juicingBump, nftBump, newNftId, {
+        accounts: {
+          owner: wallet.publicKey,
+          userPool: userPoolKey,
+          nftMint: stakedNftMint,
+          newNftMint: new PublicKey(newNftMint),
+          globalAuthority,
+          juicingGlobal,
+          juicingNftInfo: nftPoolKey,
+          stakedTokenAccount: oldNftAta.destinationAccounts[0],
+          newStakedTokenAccount: newNftAta.destinationAccounts[0],
+          nftVault: destinationAccounts[0],
+          burnAccount: ret.destinationAccounts[0],
+          juicingProgram: juicingProgram.programId,
+          mintMetadata: oldMetadata,
+          tokenMetadataProgram: METAPLEX,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        },
+        instructions: [],
+        signers: [],
+      })
+    );
+    let { blockhash } = await provider.connection.getLatestBlockhash(
+      "confirmed"
+    );
+    tx.feePayer = wallet.publicKey as PublicKey;
+    tx.recentBlockhash = blockhash;
+    if (wallet.signTransaction !== undefined) {
+      const signedTransaction = await wallet.signTransaction(tx);
+
+      let txId = await provider.connection.sendRawTransaction(
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+          maxRetries: 3,
+          preflightCommitment: "confirmed",
+        }
+      );
+
+      console.log(txId, "==> txId");
+
+      await solConnection.confirmTransaction(txId, "finalized");
+    }
+    closeLoading();
+    console.log("Your transaction signature", tx);
+    updatePage();
+  } catch (error) {
+    closeLoading();
+    console.log("Error-----", error);
+  }
 };
 
 export const initProject = async (wallet: WalletContextState) => {

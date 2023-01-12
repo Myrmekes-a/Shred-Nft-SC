@@ -1,8 +1,9 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { useEffect, useState } from "react";
-import { mutNftFromBootcamp, nftToMutable } from "../contexts/bootcamp_helper";
 import { ClipLoader } from "react-spinners";
+import { mutNftFromBootcamp, nftToMutable } from "../contexts/bootcamp_helper";
+import { mutNftFromStaking } from "../contexts/helper";
 // import nftList from "../contexts/old_to_new.json";
 
 export default function NFTJuicedCard({
@@ -12,6 +13,7 @@ export default function NFTJuicedCard({
   address,
   nftList,
   stake,
+  bootcamp,
 }) {
   const wallet = useWallet();
 
@@ -31,6 +33,14 @@ export default function NFTJuicedCard({
 
   const mutableNft = async () => {
     if (stake) {
+      await mutNftFromStaking(
+        wallet,
+        new PublicKey(address),
+        () => setLoading(true),
+        () => setLoading(false),
+        () => updatePage()
+      );
+    } else if (bootcamp) {
       await mutNftFromBootcamp(
         wallet,
         new PublicKey(address),
@@ -39,7 +49,9 @@ export default function NFTJuicedCard({
         () => updatePage()
       );
     } else {
-      await nftToMutable(wallet, new PublicKey(address),
+      await nftToMutable(
+        wallet,
+        new PublicKey(address),
         () => setLoading(true),
         () => setLoading(false),
         () => updatePage()

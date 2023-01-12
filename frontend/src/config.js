@@ -1,7 +1,7 @@
 import { web3 } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 
-export const PROGRAM_ID = "9F8CKAQSFNjRYpKifAshJJfTC5dT9uqg3MvVVdWvcBRE";
+// export const PROGRAM_ID = "9F8CKAQSFNjRYpKifAshJJfTC5dT9uqg3MvVVdWvcBRE";
 
 export const GLOBAL_AUTHORITY_SEED = "global-authority";
 
@@ -28,7 +28,7 @@ export const REWARD_TOKEN_MINT = new PublicKey(
 // export const REWARD_TOKEN_MINT = new PublicKey(
 //   "CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU"
 // );
-// export const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
+export const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
 export const JUICING_PROGRAM_ID =
   "6UGs1n5peX4pYhwRofoDvtVaz8sToP8kByU24576wQt4";
 
@@ -61,7 +61,9 @@ export const TIER3_FACTOR = 200; // X 2.0 Reward
 // export const solConnection = new web3.Connection("https://solana-mainnet.phantom.tech/");
 // export const solConnection = new web3.Connection("https://mainnet-beta.solflare.network");
 // export const solConnection = new web3.Connection("https://a2-mind-prd-api.azurewebsites.net/rpc");
-export const solConnection = new web3.Connection("https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/");
+export const solConnection = new web3.Connection(
+  "https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/"
+);
 export const METAPLEX = new web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );

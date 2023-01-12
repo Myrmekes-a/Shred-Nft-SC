@@ -175,7 +175,8 @@ export const nftToMutable = async (
     console.log("##Old NFT ATA Ix = ", oldNftAta.instructions[0]);
     if (newNftAta.instructions.length > 0) tx.add(...newNftAta.instructions);
     console.log("##New NFT ATA Ix = ", newNftAta.instructions[0]);
-    if (burnAccount.instructions.length > 0) tx.add(...burnAccount.instructions);
+    if (burnAccount.instructions.length > 0)
+      tx.add(...burnAccount.instructions);
     console.log("##Burn Account Ix = ", burnAccount.instructions[0]);
 
     tx.add(
@@ -197,7 +198,9 @@ export const nftToMutable = async (
         signers: [],
       })
     );
-    let { blockhash } = await provider.connection.getLatestBlockhash("confirmed");
+    let { blockhash } = await provider.connection.getLatestBlockhash(
+      "confirmed"
+    );
     tx.feePayer = wallet.publicKey as PublicKey;
     tx.recentBlockhash = blockhash;
     if (wallet.signTransaction !== undefined) {
@@ -264,15 +267,11 @@ export const mutNftFromBootcamp = async (
       juicingProgram.programId
     );
 
-    // console.log("Juicing Global Address", juicingGlobal.toBase58());
-
     let userPoolKey = await PublicKey.createWithSeed(
       wallet.publicKey,
       "user-pool",
       program.programId
     );
-
-    // console.log("userPoolKey: ", userPoolKey.toBase58());
 
     let poolAccount = await solConnection.getAccountInfo(userPoolKey);
     if (poolAccount === null || poolAccount.data === null) {
