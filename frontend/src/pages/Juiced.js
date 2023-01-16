@@ -225,15 +225,13 @@ export default function Juiced() {
     if (walletNFTs.length) {
       for (let i = 0; i < walletNFTs.length; i++) {
         if (walletNFTs[i].isMutable === 0) {
-          await nftToMutable(wallet, new PublicKey(walletNFTs[i].address));
-          // for (let j = 0; j < nftList.length; j++) {
-          //   if (nftList[j].oldPubkey === walletNFTs[i].address) {
-          //     const nft = await getNftMetaData(
-          //       new PublicKey(nftList[j].newPubkey)
-          //     );
-          //     setChangeNftName(nft.data.data.name);
-          //   }
-          // }
+          await nftToMutable(
+            wallet,
+            new PublicKey(walletNFTs[i].address),
+            () => setLoading(true),
+            () => setLoading(false),
+            () => updatePage()
+          );
         }
       }
     }
