@@ -66,7 +66,7 @@ export default function Header({ SCREEN_WIDTH, dimensions, setBootCampIndex }) {
             }`}
             to="/juiced"
           >
-            Juiced
+            Ignition
           </NavLink>
           <NavLink
             className={`nav-bar ${

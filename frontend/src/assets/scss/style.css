@@ -1433,7 +1433,7 @@ footer {
   .juiced-card button {
     padding: 5px 0;
     width: 170px;
-    margin-top: 25px;
+    margin-top: 5px;
   }
 
   .soon {
@@ -3036,6 +3036,12 @@ button.full-width-cta {
   justify-content: center;
   align-items: center;
   margin-top: 50px;
+  flex-direction: column;
+}
+
+.all-nft-mutable small {
+  text-align: center;
+  margin-top: 25px;
 }
 
 .all-nft-mutable .non-mutable-btn {

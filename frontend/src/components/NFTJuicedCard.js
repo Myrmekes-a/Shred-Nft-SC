@@ -73,8 +73,8 @@ export default function NFTJuicedCard({
             <h3>Current status:</h3>
             <p className="select-mutable">Mutable</p>
           </div>
-          <h3>Congratulations, yor NFT is mutated!</h3>
-          <div className="mutable-btn">Mutated</div>
+          {/* <h3>Congratulations, yor NFT is mutated!</h3> */}
+          <div className="mutable-btn">Ignited</div>
         </>
       ) : (
         <>
@@ -82,14 +82,14 @@ export default function NFTJuicedCard({
             <h3>Current status:</h3>
             <p className="non-select-mutable">Non-mutable</p>
           </div>
-          <h3>Ready to be mutable</h3>
+          {/* <h3>Ready to be mutable</h3> */}
           <button
             className="non-mutable-btn"
             onClick={mutableNft}
             disabled={loading}
           >
             {!loading ? (
-              <span>Make it mutable</span>
+              <span>Ignite</span>
             ) : (
               <ClipLoader color="#FFF" size={20} />
             )}

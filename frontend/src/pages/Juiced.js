@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import bannerImage from "../assets/img/juiced.jpg";
+import bannerImage from "../assets/img/juiced.png";
 import Container from "../components/Container";
 import NFTJuicedCard from "../components/NFTJuicedCard";
 import RightDoubleArrowIcon from "../assets/icons/rightDoubleArrow";
@@ -342,7 +342,7 @@ export default function Juiced() {
     <div className="juiced-content">
       <div className="landing-banner">
         <img src={bannerImage} alt="" className="juiced-banner" />
-        <h1>IGNITION</h1>
+        {/* <h1>IGNITION</h1> */}
       </div>
       <Container>
         <div className="describe">
@@ -354,7 +354,7 @@ export default function Juiced() {
                 <h3>NON-MUTABLE</h3>
               </div>
               <div className="right-arrow">
-                <h3>FREE</h3>
+                {/* <h3>FREE</h3> */}
                 <RightDoubleArrowIcon />
               </div>
               <div>
@@ -377,11 +377,17 @@ export default function Juiced() {
           </div>
           <div className="all-nft-mutable">
             <button className="non-mutable-btn" onClick={mutableNft}>
-              <span>Make All NFT's Mutable</span>
+              <span>Ignite all NFTs</span>
             </button>
+            <small>
+              You will receive a transaction for each place holding your NFTs:
+              staking, bootcamps and your wallet.
+              <br />
+              Allow the program some time if you have multiple NFTs to ignite
+            </small>
           </div>
           <div className="h-sub-title">
-            <h3>NFT's staked in Normal Pool</h3>
+            <h3>Regular staking</h3>
           </div>
           <div className="nft-list">
             {stakedLoading ? (
@@ -408,7 +414,7 @@ export default function Juiced() {
             )}
           </div>
           <div className="h-sub-title">
-            <h3>NFT's staked in Bootcamp</h3>
+            <h3>Bootcamps</h3>
           </div>
           <div className="nft-list">
             {bootcampLoading ? (
@@ -435,7 +441,7 @@ export default function Juiced() {
             )}
           </div>
           <div className="h-sub-title">
-            <h3>NFTs in your Wallet</h3>
+            <h3>Your wallet</h3>
           </div>
           <div className="nft-list">
             {walletNFTs.length !== 0 &&
@@ -459,7 +465,7 @@ export default function Juiced() {
           )}
         </div>
         <div className="soon">
-          <h2>The Juicing is happening soon...</h2>
+          <h2>From the ashes we will rise...</h2>
         </div>
       </Container>
       <Footer />
