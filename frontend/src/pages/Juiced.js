@@ -7,13 +7,13 @@ import { useEffect, useState } from "react";
 import {
   getMyNft,
   getUserPoolState as getUserBootCampPoolState,
-  mutNftFromBootcamp,
-  nftToMutable,
+  mutAllNftFromBootcamp,
+  allNftToMutable,
 } from "../contexts/bootcamp_helper";
 import {
   getNftMetaData,
   getUserPoolState,
-  mutNftFromStaking,
+  mutAllNftFromStaking,
 } from "../contexts/helper";
 import { PublicKey } from "@solana/web3.js";
 import nftList from "../contexts/old_to_new.json";
@@ -196,44 +196,46 @@ export default function Juiced() {
   };
 
   const mutableNft = async () => {
-    if (userStakedNFTs.length) {
-      for (let i = 0; i < userStakedNFTs.length; i++) {
-        if (userStakedNFTs[i].isMutable === 0) {
-          await mutNftFromStaking(
-            wallet,
-            new PublicKey(userStakedNFTs[i].address),
-            () => setLoading(true),
-            () => setLoading(false),
-            () => updatePage()
-          );
-        }
-      }
+    const stakedNFTs = userStakedNFTs
+      .filter((nft) => !nft.isMutable)
+      .map((nft) => new PublicKey(nft.address));
+    console.log("stakedNFTs -->", stakedNFTs);
+    if (stakedNFTs.length) {
+      await mutAllNftFromStaking(
+        wallet,
+        stakedNFTs,
+        () => setLoading(true),
+        () => setLoading(false),
+        () => updatePage()
+      );
     }
-    if (userStakedBootCampNFTs.length) {
-      for (let i = 0; i < userStakedBootCampNFTs.length; i++) {
-        if (userStakedBootCampNFTs[i].isMutable === 0) {
-          await mutNftFromBootcamp(
-            wallet,
-            new PublicKey(userStakedBootCampNFTs[i].address),
-            () => setLoading(true),
-            () => setLoading(false),
-            () => updatePage()
-          );
-        }
-      }
+
+    const stakedBootcampNFTs = userStakedBootCampNFTs
+      .filter((nft) => !nft.isMutable)
+      .map((nft) => new PublicKey(nft.address));
+    console.log("stakedBootcampNFTs -->", stakedBootcampNFTs);
+    if (stakedBootcampNFTs.length) {
+      await mutAllNftFromBootcamp(
+        wallet,
+        stakedBootcampNFTs,
+        () => setLoading(true),
+        () => setLoading(false),
+        () => updatePage()
+      );
     }
-    if (walletNFTs.length) {
-      for (let i = 0; i < walletNFTs.length; i++) {
-        if (walletNFTs[i].isMutable === 0) {
-          await nftToMutable(
-            wallet,
-            new PublicKey(walletNFTs[i].address),
-            () => setLoading(true),
-            () => setLoading(false),
-            () => updatePage()
-          );
-        }
-      }
+
+    const unstakedNFTs = walletNFTs
+      .filter((nft) => !nft.isMutable)
+      .map((nft) => new PublicKey(nft.address));
+    console.log("unstaked NFTs -->", unstakedNFTs);
+    if (unstakedNFTs.length) {
+      await allNftToMutable(
+        wallet,
+        unstakedNFTs,
+        () => setLoading(true),
+        () => setLoading(false),
+        () => updatePage()
+      );
     }
   };
 
