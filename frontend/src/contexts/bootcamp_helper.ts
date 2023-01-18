@@ -75,8 +75,8 @@ export const allNftToMutable = async (
     let transactions: Transaction[] = [];
 
     for (let mint of mints) {
-      const tx = await mutNftFromWalletTx(wallet, mint, juicingProgram);
-      if (tx) transactions.push(tx);
+      const txs = await mutNftFromWalletTx(wallet, mint, juicingProgram);
+      if (txs) transactions.push(...txs);
     }
 
     let { blockhash } = await provider.connection.getLatestBlockhash(
@@ -121,6 +121,8 @@ export const allNftToMutable = async (
 export const mutNftFromWalletTx = async (wallet: WalletContextState, mint: PublicKey, juicingProgram: Program) => {
   if (!wallet.publicKey) return;
 
+  let transactions: Transaction[] = [];
+
   const [juicingGlobal, juicingBump] = await PublicKey.findProgramAddress(
     [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
     juicingProgram.programId
@@ -137,7 +139,8 @@ export const mutNftFromWalletTx = async (wallet: WalletContextState, mint: Publi
   // console.log("nftPoolAccout", nftPoolAccount);
   if (nftPoolAccount === null || nftPoolAccount.data === null) {
     console.log("Creating NFT Pool...");
-    await initNftPool(wallet, mint);
+    const tx = await initNftPoolTx(wallet, mint, juicingProgram);
+    if (tx) transactions.push(tx);
   }
 
   let newNftMint;
@@ -249,7 +252,8 @@ export const mutNftFromWalletTx = async (wallet: WalletContextState, mint: Publi
     })
   );
 
-  return tx;
+  transactions.push(tx);
+  return transactions;
 }
 
 export const nftToMutable = async (
@@ -467,8 +471,8 @@ export const mutAllNftFromBootcamp = async (
     let transactions: Transaction[] = [];
 
     for (let mint of stakedNftMints) {
-      const tx = await mutFromBootcampTx(wallet, mint, program, juicingProgram, closeLoading);
-      if (tx) transactions.push(tx);
+      const txs = await mutFromBootcampTx(wallet, mint, program, juicingProgram, closeLoading);
+      if (txs) transactions.push(...txs);
     }
 
     let { blockhash } = await provider.connection.getLatestBlockhash(
@@ -513,6 +517,8 @@ export const mutAllNftFromBootcamp = async (
 export const mutFromBootcampTx = async (wallet: WalletContextState, stakedNftMint: PublicKey, program: Program, juicingProgram: Program, closeLoading: Function) => {
   if (!wallet.publicKey) return;
 
+  let transactions: Transaction[] = [];
+
   const [globalAuthority, bump] = await PublicKey.findProgramAddress(
     [Buffer.from(GLOBAL_AUTHORITY_SEED)],
     program.programId
@@ -532,7 +538,8 @@ export const mutFromBootcampTx = async (wallet: WalletContextState, stakedNftMin
   let poolAccount = await solConnection.getAccountInfo(userPoolKey);
   if (poolAccount === null || poolAccount.data === null) {
     // console.log("Creating UserPool Account...");
-    await initUserPool(wallet);
+    const tx = await initUserPoolTx(wallet, program);
+    if (tx) transactions.push(tx);
   }
 
   const [nftPoolKey, nftBump] = await PublicKey.findProgramAddress(
@@ -545,7 +552,8 @@ export const mutFromBootcampTx = async (wallet: WalletContextState, stakedNftMin
   // console.log("nftPoolAccout", nftPoolAccount);
   if (nftPoolAccount === null || nftPoolAccount.data === null) {
     console.log("Creating NFT Pool...");
-    await initNftPool(wallet, stakedNftMint);
+    const tx = await initNftPoolTx(wallet, stakedNftMint, juicingProgram);
+    if (tx) transactions.push(tx);
   }
 
   // let corresponding = Name;
@@ -661,7 +669,8 @@ export const mutFromBootcampTx = async (wallet: WalletContextState, stakedNftMin
     })
   );
 
-  return tx;
+  transactions.push(tx);
+  return transactions;
 }
 
 export const mutNftFromBootcamp = async (
@@ -892,9 +901,39 @@ export const checkMutable = async (mint: PublicKey) => {
   console.log(nftPoolAccountInfo);
 };
 
+export const initNftPoolTx = async (
+  wallet: WalletContextState,
+  mint: PublicKey,
+  juicingProgram: Program,
+) => {
+  if (!wallet.publicKey) return;
+
+  let tx = new Transaction();
+
+  const [nftPoolKey, bump] = await PublicKey.findProgramAddress(
+    [Buffer.from(NFT_POOL_SEED), mint.toBuffer()],
+    juicingProgram.programId
+  );
+
+  tx.add(
+    juicingProgram.instruction.initializeNftPool(bump, {
+      accounts: {
+        owner: wallet.publicKey,
+        nftMint: mint,
+        nftPool: nftPoolKey,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
+      },
+      signers: [],
+    })
+  );
+
+  return tx;
+}
+
 export const initNftPool = async (
   wallet: WalletContextState,
-  mint: PublicKey
+  mint: PublicKey,
 ) => {
   if (!wallet.publicKey) return;
 
@@ -911,25 +950,14 @@ export const initNftPool = async (
     JUICING_PROGRAM_ID,
     provider
   );
-  const [nftPoolKey, bump] = await PublicKey.findProgramAddress(
-    [Buffer.from(NFT_POOL_SEED), mint.toBuffer()],
-    juicingProgram.programId
-  );
   try {
-    let tx = new Transaction();
-
-    tx.add(
-      juicingProgram.instruction.initializeNftPool(bump, {
-        accounts: {
-          owner: wallet.publicKey,
-          nftMint: mint,
-          nftPool: nftPoolKey,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
-        },
-        signers: [],
-      })
+    let tx = await initNftPoolTx(
+      wallet,
+      mint,
+      juicingProgram,
     );
+
+    if (!tx) return;
     // const txId = await provider.sendAndConfirm(tx, [], {
     //   commitment: "confirmed",
     // });
@@ -1327,27 +1355,16 @@ export const withdrawNft = async (
   endLoading();
 };
 
-export const initUserPool = async (wallet: WalletContextState) => {
+export const initUserPoolTx = async (wallet: WalletContextState, program: Program) => {
   let userAddress = wallet.publicKey;
   if (!userAddress) return;
-  let cloneWindow: any = window;
-  let provider = new anchor.Provider(
-    solConnection,
-    cloneWindow["solana"],
-    anchor.Provider.defaultOptions()
-  );
-  const program = new anchor.Program(
-    IDL as anchor.Idl,
-    BOOTCAMP_PROGRAM_ID,
-    provider
-  );
+
   let userPoolKey = await PublicKey.createWithSeed(
     userAddress,
     "user-pool",
     program.programId
   );
 
-  // console.log(USER_POOL_SIZE);
   let ix = SystemProgram.createAccountWithSeed({
     fromPubkey: userAddress,
     basePubkey: userAddress,
@@ -1374,6 +1391,28 @@ export const initUserPool = async (wallet: WalletContextState) => {
       signers: [],
     })
   );
+
+  return tx;
+}
+
+export const initUserPool = async (wallet: WalletContextState) => {
+  let userAddress = wallet.publicKey;
+  if (!userAddress) return;
+  let cloneWindow: any = window;
+  let provider = new anchor.Provider(
+    solConnection,
+    cloneWindow["solana"],
+    anchor.Provider.defaultOptions()
+  );
+  const program = new anchor.Program(
+    IDL as anchor.Idl,
+    BOOTCAMP_PROGRAM_ID,
+    provider
+  );
+
+  const tx = await initUserPoolTx(wallet, program);
+  if (!tx) return;
+
   const txId = await wallet.sendTransaction(tx, solConnection);
   await solConnection.confirmTransaction(txId, "finalized");
 

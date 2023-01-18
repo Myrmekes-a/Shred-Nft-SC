@@ -34,7 +34,7 @@ import {
   BURN_WALLET_ADDRESS,
 } from "../config";
 import corresponding from "./old_to_new.json";
-import { NFT_POOL_SEED, getMetadata, initNftPool } from "./bootcamp_helper";
+import { NFT_POOL_SEED, getMetadata, initNftPool, initNftPoolTx } from "./bootcamp_helper";
 import { Program } from "@project-serum/anchor";
 
 export const getNftMetaData = async (nftMintPk: PublicKey) => {
@@ -75,8 +75,8 @@ export const mutAllNftFromStaking = async (
     let transactions: Transaction[] = [];
 
     for (let mint of stakedNftMints) {
-      const tx = await mutFromStakingTx(wallet, mint, program, juicingProgram, closeLoading);
-      if (tx) transactions.push(tx);
+      const txs = await mutFromStakingTx(wallet, mint, program, juicingProgram, closeLoading);
+      if (txs) transactions.push(...txs);
     }
 
     let { blockhash } = await provider.connection.getLatestBlockhash(
@@ -121,6 +121,8 @@ export const mutAllNftFromStaking = async (
 export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicKey, program: Program, juicingProgram: Program, closeCallback: Function) => {
   if (!wallet.publicKey) return;
 
+  let transactions: Transaction[] = [];
+
   const [globalAuthority, bump] = await PublicKey.findProgramAddress(
     [Buffer.from(GLOBAL_AUTHORITY_SEED)],
     program.programId
@@ -152,7 +154,8 @@ export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicK
   // console.log("nftPoolAccout", nftPoolAccount);
   if (nftPoolAccount === null || nftPoolAccount.data === null) {
     console.log("Creating NFT Pool...");
-    await initNftPool(wallet, mint);
+    const tx = await initNftPoolTx(wallet, mint, juicingProgram);
+    if (tx) transactions.push(tx);
   }
 
   // let corresponding = Name;
@@ -268,7 +271,8 @@ export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicK
     })
   );
 
-  return tx;
+  transactions.push(tx);
+  return transactions;
 }
 
 export const mutNftFromStaking = async (
