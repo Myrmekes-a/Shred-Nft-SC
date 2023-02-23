@@ -24,7 +24,7 @@ const GLOBAL_AUTHORITY_SEED = "global-authority";
 
 const BURN_WALLET_ADDRESS = new PublicKey("4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug");
 // const REWARD_TOKEN_MINT = new PublicKey("CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU");
-const REWARD_TOKEN_MINT = new PublicKey("5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi");
+const REWARD_TOKEN_MINT = new PublicKey("Ue4yjkPjA4QGis37eWbBsnqfzyK83BtY4AioDETp3Ab");
 const PROGRAM_ID = "CTniA9cmfobHRaTq8cBawE9Z9VwYAA1ifgRXMGZxVRfc";
 // GlobalAuthority:  FeV6rLhiGSjTns8c9MEF4qkAQLcvzPVeEabYCskCNYQN
 // RewardVault:  2Ni6PuHDDt6DUVTr26u1oCpmTvi8Htf9Fn95CarpH144
