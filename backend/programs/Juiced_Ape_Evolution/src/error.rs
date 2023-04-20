@@ -12,6 +12,8 @@ pub enum EvolutionError {
     InvalidUpdateAuthority,
     #[msg("Invalid User Pool Owner")]
     InvalidUserPool,
+    #[msg("Invalid Nft Pool Mint")]
+    InvalidNftPool,
     #[msg("Collection Address Is Not Exist")]
     CollectionNotExist,
     #[msg("Collection Address Already Added")]

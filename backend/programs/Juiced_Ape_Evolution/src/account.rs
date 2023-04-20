@@ -21,6 +21,14 @@ pub struct NftPool {
     pub is_mutable: bool, //1
 }
 
+#[account]
+#[derive(Default)]
+pub struct UserPool {
+    //Total: 8 + 40
+    pub owner: Pubkey,     //32
+    pub juiced_count: u64, //8
+}
+
 impl NftPool {
     pub fn get_paid(&mut self) {
         self.is_paid = true;
