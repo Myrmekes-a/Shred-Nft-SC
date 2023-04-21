@@ -1,68 +1,67 @@
-import { Program, web3 } from '@project-serum/anchor';
-import * as anchor from '@project-serum/anchor';
-import {
-    PublicKey,
-} from '@solana/web3.js';
+import { Program } from "@project-serum/anchor";
+import * as anchor from "@project-serum/anchor";
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { Signer, Transaction, Keypair, Connection } from "@solana/web3.js";
 
-import fs from 'fs';
-import { UserPool } from './types';
+import fs from "fs";
 
-const GLOBAL_AUTHORITY_SEED = "global-authority";
+const SOLANA_MAINNET =
+  "https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/";
+const solConnection = new Connection(SOLANA_MAINNET, "confirmed");
 
-const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
-console.log(process.env.ANCHOR_WALLET, 'wallet');
-anchor.setProvider(anchor.Provider.local(web3.clusterApiUrl('mainnet-beta')));
-let program: Program = null;
-
-// Configure the client to use the local cluster.
-const idl = JSON.parse(
-    fs.readFileSync(__dirname + "/shred_staking.json", "utf8")
+console.log(
+  process.env.UPDATE_AUTHORITY
+    ? "Update Authority wallet loaded"
+    : "ENV not loaded"
 );
 
-// Address of the deployed program.
-const programId = new anchor.web3.PublicKey(PROGRAM_ID);
+const wallet = new anchor.Wallet(
+  Keypair.fromSecretKey(
+    Uint8Array.from(JSON.parse(process.env.UPDATE_AUTHORITY!)),
+    { skipValidation: true }
+  )
+);
+const provider = new anchor.AnchorProvider(solConnection, wallet, {});
+anchor.setProvider(provider);
+const payer = wallet;
 
-// Generate the program client from IDL.
-program = new anchor.Program(idl, programId);
-console.log('ProgramId: ', program.programId.toBase58());
+const PROGRAM_ID = "6UGs1n5peX4pYhwRofoDvtVaz8sToP8kByU24576wQt4";
 
+// let program: Program = null;
 
-export const getStakedNFTsFromWallet = async (address: string) => {
-    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
-        [Buffer.from(GLOBAL_AUTHORITY_SEED)],
-        program.programId
+// // Configure the client to use the local cluster.
+// const idl = JSON.parse(
+//   fs.readFileSync(__dirname + "/juiced_ape_evolution.json", "utf8")
+// );
+
+// // Address of the deployed program.
+// const programId = new anchor.web3.PublicKey(PROGRAM_ID);
+
+// // Generate the program client from IDL.
+// program = new anchor.Program(idl, programId);
+// console.log("ProgramId: ", program.programId.toBase58());
+
+export const rebirthTxSign = async (
+  encodedTx: string // Encoded transaction
+) => {
+  console.log("Update Authority", payer.publicKey.toBase58());
+
+  // Deserialize the transaction from the response
+  const transaction = Transaction.from(Buffer.from(encodedTx, "base64"));
+  if (transaction.instructions[0].keys.length > 4)
+    console.log(
+      "NftMint:",
+      transaction.instructions[0].keys[3].pubkey.toBase58()
     );
-    console.log('GlobalAuthority: ', globalAuthority.toBase58());
-    try {
-        const userPool: UserPool = await getUserPoolState(new PublicKey(address));
-        return {
-            holder: globalAuthority.toBase58(),
-            stakedCount: userPool.stakedCount.toNumber(),
-            stakedMints: userPool.stakedMints.slice(0, userPool.stakedCount.toNumber()).map((info) => {
-                return info.mint.toBase58();
-            })
-        }
-    } catch (e) {
-        console.log(e); 
-        return undefined;
-    }
+  transaction.partialSign((payer as NodeWallet).payer as Signer);
+
+  // Serialize the transaction and convert to base64 to return it
+  const serializedTransaction = transaction.serialize({
+    // We will need the buyer to sign this transaction after it's returned to them
+    requireAllSignatures: false,
+  });
+
+  const base64 = serializedTransaction.toString("base64");
+
+  return base64;
 };
-
-export const getUserPoolState = async (
-    userAddress: PublicKey
-): Promise<UserPool | null> => {
-    if (!userAddress) return null;
-
-    let userPoolKey = await PublicKey.createWithSeed(
-        userAddress,
-        "user-pool",
-        program.programId,
-    );
-    console.log('User Pool: ', userPoolKey.toBase58());
-    try {
-        let poolState = await program.account.userPool.fetch(userPoolKey);
-        return poolState as UserPool;
-    } catch {
-        return null;
-    }
-}
