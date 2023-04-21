@@ -144,8 +144,9 @@ const main = async () => {
 
   // const stakedInfo = await getStakedNFTsFromWallet(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7'));
   // console.log(stakedInfo);
-  // const userPool: UserPool = await getUserPoolState(payer.publicKey);
-  // console.log(userPool.owner.toBase58())
+  const userPool: UserPool = await getUserPoolState(payer.publicKey);
+  console.log(userPool.owner.toBase58());
+  console.log(userPool.juicedCount.toNumber());
   // console.log({
   //     owner: userPool.owner.toBase58(),
   //     stakedMints: userPool.stakedMints.slice(0, userPool.stakedCount.toNumber()).map((info) => {
@@ -165,9 +166,10 @@ const main = async () => {
   // });
   // console.log(await calculateAvailableReward(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7')));
   // await mutNftFromBootcamp(new PublicKey("FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7"));
-  await juicingNft(
-    new PublicKey("4LfWQP8pLeiWEPipw5oCCkkuQYsjd2uyA96fiP2Eu4Tz")
-  );
+  //   await juicingNft(
+  //     new PublicKey("4LfWQP8pLeiWEPipw5oCCkkuQYsjd2uyA96fiP2Eu4Tz")
+  //   );
+  await withdrawSolVault();
 };
 
 // export const mutNft = async (
@@ -355,6 +357,40 @@ export const initProject = async () => {
     },
     signers: [],
   });
+  await solConnection.confirmTransaction(tx, "confirmed");
+
+  console.log("txHash =", tx);
+  return false;
+};
+
+export const withdrawSolVault = async () => {
+  const [globalAuthority, bump] = await PublicKey.findProgramAddress(
+    [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
+    juicingProgram.programId
+  );
+  const [solVault, vault_bump] = await PublicKey.findProgramAddress(
+    [Buffer.from(SOL_VAULT_SEED)],
+    juicingProgramId
+  );
+  console.log("SolVault: ", solVault.toBase58());
+  const amount =
+    (await solConnection.getBalance(solVault)) -
+    (await solConnection.getMinimumBalanceForRentExemption(0));
+  const tx = await juicingProgram.rpc.withdrawSol(
+    bump,
+    vault_bump,
+    new anchor.BN(amount),
+    {
+      accounts: {
+        admin: payer.publicKey,
+        globalAuthority,
+        solVault,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
+      },
+      signers: [],
+    }
+  );
   await solConnection.confirmTransaction(tx, "confirmed");
 
   console.log("txHash =", tx);

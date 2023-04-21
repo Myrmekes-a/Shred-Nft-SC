@@ -312,16 +312,16 @@ pub mod juiced_ape_evolution {
         // let token_program = &mut &ctx.accounts.token_program;
         let token_metadata_program = &ctx.accounts.token_metadata_program;
         let mut price = 7 * SOL_DECIMAL / 10;
-        if user_pool.juiced_count > 2 {
+        if user_pool.juiced_count > 1 {
             price = 6 * SOL_DECIMAL / 10;
         }
-        if user_pool.juiced_count > 5 {
+        if user_pool.juiced_count > 4 {
             price = 5 * SOL_DECIMAL / 10;
         }
-        if user_pool.juiced_count > 11 {
+        if user_pool.juiced_count > 10 {
             price = 4 * SOL_DECIMAL / 10;
         }
-        if user_pool.juiced_count > 23 {
+        if user_pool.juiced_count > 22 {
             price = 3 * SOL_DECIMAL / 10;
         }
 
