@@ -9,10 +9,12 @@ export const GLOBAL_AUTHORITY_SEED = "global-authority";
 // export const APE_CREATOR = "E5GSUDTQAvJouZkxHFGMA3THVzXWvrs4hRZEag2au3k6";
 export const APE_CREATOR = "36MrAKpGGp8ysANfTNCUswCH2qdCAmGy3pTdd8Ts8vCH";
 export const DIAMOND_CREATOR = "Fg8CkttGq4jvgPYqeE7LLVmt3EwzsefGxnyvhJuXbiy7";
-export const PUBLISH_NETWORK = "devnet";
+export const PUBLISH_NETWORK = "mainnet";
 
 export const USER_POOL_SIZE = 4864; // 8 + 4856
 export const JUICING_GLOBAL_AUTHORITY_SEED = "juicing-global-authority";
+export const JUICING_SOL_VAULT_SEED = "sol-vault";
+export const JUICING_USER_POOL_SEED = "user-pool";
 
 export const BURN_WALLET_ADDRESS = new PublicKey(
   "4XX1K7KWAM4KrNovEPazunXEiLNvdcyTp1abs8Snz5Ug"
@@ -23,7 +25,7 @@ export const IMMUTABLE_COLLECTION =
 export const MUTABLE_COLLECTION =
   "3eTprkijjwjx1jd17UrVHzr6GnQqf3mtV3FXqZj16fVL";
 export const REWARD_TOKEN_MINT = new PublicKey(
-  "5fTwKZP2AK39LtFN9Ayppu6hdCVKfMGVm79F2EgHCtsi"
+  "Ue4yjkPjA4QGis37eWbBsnqfzyK83BtY4AioDETp3Ab"
 );
 // export const REWARD_TOKEN_MINT = new PublicKey(
 //   "CFt8zQNRUpK4Lxhgv64JgZ5giZ3VWXSceQr6yKh7VoFU"
@@ -68,4 +70,7 @@ export const METAPLEX = new web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
 
-export const SHRED_BACKEND_API_URL = "https://sagc-holders-api.herokuapp.com";
+// export const SHRED_BACKEND_API_URL = "https://sagc-holders-api.herokuapp.com";
+export const SHRED_BACKEND_API_URL = "https://api-fixstaking.vercel.app/";
+export const JUICING_BACKEND_API_URL =
+  "https://juicing-sign-backend.vercel.app/";

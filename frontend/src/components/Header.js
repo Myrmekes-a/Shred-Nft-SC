@@ -62,11 +62,19 @@ export default function Header({ SCREEN_WIDTH, dimensions, setBootCampIndex }) {
           </NavLink>
           <NavLink
             className={`nav-bar ${
-              window.location.pathname === "juiced" ? "active" : ""
+              window.location.pathname === "ignition" ? "active" : ""
             }`}
-            to="/juiced"
+            to="/ignition"
           >
             Ignition
+          </NavLink>
+          <NavLink
+            className={`nav-bar ${
+              window.location.pathname === "ignition" ? "active" : ""
+            }`}
+            to="/rebirth"
+          >
+            Rebirth
           </NavLink>
           <NavLink
             className={`nav-bar ${
@@ -95,14 +103,14 @@ export default function Header({ SCREEN_WIDTH, dimensions, setBootCampIndex }) {
           >
             BootCamps
           </NavLink>
-          <NavLink
+          {/* <NavLink
             className={`nav-bar ${
               window.location.pathname === "partnership" ? "active" : ""
             }`}
             to="/partnership"
           >
             PartnerShip
-          </NavLink>
+          </NavLink> */}
           {/* <a
             className="nav-bar"
             href="https://i.simmer.io/@KiD/flappy-ape"
@@ -267,12 +275,12 @@ export default function Header({ SCREEN_WIDTH, dimensions, setBootCampIndex }) {
                 </NavLink>
                 <NavLink
                   className="nav-bar"
-                  to="/juiced"
+                  to="/ignition"
                   onClick={() => {
                     setMenuSelected(false);
                   }}
                 >
-                  Juiced
+                  Ignition
                 </NavLink>
                 <NavLink
                   className="nav-bar"

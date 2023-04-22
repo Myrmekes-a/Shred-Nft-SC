@@ -15,9 +15,6 @@ export default function BootCamps({
 
   useEffect(() => {
     if (!wallet.publicKey) setBootCampIndex(0);
-    else {
-      console.log("Wallet", wallet.publicKey);
-    }
     // eslint-disable-next-line
   }, [wallet.publicKey, wallet.connected]);
 

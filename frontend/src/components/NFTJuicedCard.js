@@ -2,8 +2,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { mutNftFromBootcamp, nftToMutable } from "../contexts/bootcamp_helper";
 import { mutNftFromStaking } from "../contexts/helper";
+import { mutNftFromBootcamp, nftToMutable } from "../contexts/juicing_helper";
 // import nftList from "../contexts/old_to_new.json";
 
 export default function NFTJuicedCard({

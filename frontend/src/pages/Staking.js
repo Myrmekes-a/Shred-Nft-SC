@@ -5,7 +5,7 @@ import HomeBanner from "../components/HomeBanner";
 import NFTCard from "../components/NFTCard";
 import { getParsedNftAccountsByOwner } from "@nfteyez/sol-rayz";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { APE_CREATOR, DIAMOND_CREATOR, solConnection } from "../config";
+import { DIAMOND_CREATOR, IMMUTABLE_COLLECTION, MUTABLE_COLLECTION, solConnection } from "../config";
 import SkeletonCard from "../components/SkeletonCard";
 import { getNftMetaData, getUserPoolState } from "../contexts/helper";
 import { PublicKey } from "@solana/web3.js";
@@ -28,7 +28,7 @@ export default function Staking() {
     if (unstakedNftList.length !== 0) {
       for (let item of unstakedNftList) {
         if (item.data.creators
-          && (item.data.creators[0]?.address === APE_CREATOR || item.data.creators[0]?.address === DIAMOND_CREATOR)
+          && (item.data.creators[0]?.address === IMMUTABLE_COLLECTION || item.data.creators[0]?.address === MUTABLE_COLLECTION || item.data.creators[0]?.address === DIAMOND_CREATOR)
           && item.data.creators[0]?.verified) {
           await fetch(item.data.uri)
             .then(resp =>

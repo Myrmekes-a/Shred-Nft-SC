@@ -34,8 +34,9 @@ import {
   BURN_WALLET_ADDRESS,
 } from "../config";
 import corresponding from "./old_to_new.json";
-import { NFT_POOL_SEED, getMetadata, initNftPool, initNftPoolTx } from "./bootcamp_helper";
+import { getMetadata } from "./bootcamp_helper";
 import { Program } from "@project-serum/anchor";
+import { initNftPool, initNftPoolTx, NFT_POOL_SEED } from "./juicing_helper";
 
 export const getNftMetaData = async (nftMintPk: PublicKey) => {
   let {
@@ -75,7 +76,13 @@ export const mutAllNftFromStaking = async (
     let transactions: Transaction[] = [];
 
     for (let mint of stakedNftMints) {
-      const txs = await mutFromStakingTx(wallet, mint, program, juicingProgram, closeLoading);
+      const txs = await mutFromStakingTx(
+        wallet,
+        mint,
+        program,
+        juicingProgram,
+        closeLoading
+      );
       if (txs) transactions.push(...txs);
     }
 
@@ -84,7 +91,7 @@ export const mutAllNftFromStaking = async (
     );
 
     transactions.forEach((transaction) => {
-      transaction.feePayer = (wallet.publicKey as PublicKey);
+      transaction.feePayer = wallet.publicKey as PublicKey;
       transaction.recentBlockhash = blockhash;
     });
 
@@ -92,12 +99,13 @@ export const mutAllNftFromStaking = async (
       const signedTransactions = await wallet.signAllTransactions(transactions);
 
       let signatures = await Promise.all(
-        signedTransactions.map((transaction) =>
-          provider.connection.sendRawTransaction(transaction.serialize(), {
-            skipPreflight: true,
-            maxRetries: 3,
-            preflightCommitment: 'confirmed',
-          })
+        signedTransactions.map(
+          (transaction) =>
+            provider.connection.sendRawTransaction(transaction.serialize(), {
+              skipPreflight: true,
+              maxRetries: 3,
+              preflightCommitment: "confirmed",
+            })
           // wallet.sendTransaction(transaction, provider.connection, {maxRetries: 3, preflightCommitment: 'confirmed'})
         )
       );
@@ -118,7 +126,13 @@ export const mutAllNftFromStaking = async (
   }
 };
 
-export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicKey, program: Program, juicingProgram: Program, closeCallback: Function) => {
+export const mutFromStakingTx = async (
+  wallet: WalletContextState,
+  mint: PublicKey,
+  program: Program,
+  juicingProgram: Program,
+  closeCallback: Function
+) => {
   if (!wallet.publicKey) return;
 
   let transactions: Transaction[] = [];
@@ -191,13 +205,12 @@ export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicK
     [new PublicKey(newNftMint)]
   );
 
-  let { instructions, destinationAccounts } =
-    await getATokenAccountsNeedCreate(
-      solConnection,
-      wallet.publicKey,
-      juicingGlobal,
-      [new PublicKey(newNftMint)]
-    );
+  let { instructions, destinationAccounts } = await getATokenAccountsNeedCreate(
+    solConnection,
+    wallet.publicKey,
+    juicingGlobal,
+    [new PublicKey(newNftMint)]
+  );
 
   // console.log("NFT Vault", destinationAccounts[0].toBase58());
 
@@ -273,7 +286,7 @@ export const mutFromStakingTx = async (wallet: WalletContextState, mint: PublicK
 
   transactions.push(tx);
   return transactions;
-}
+};
 
 export const mutNftFromStaking = async (
   wallet: WalletContextState,

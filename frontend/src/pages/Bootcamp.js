@@ -6,7 +6,7 @@ import BootCamps from "../components/BootCamps";
 import NFTCard from "../components/NFTCard";
 import { getParsedNftAccountsByOwner } from "@nfteyez/sol-rayz";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { APE_CREATOR, solConnection } from "../config";
+import { IMMUTABLE_COLLECTION, MUTABLE_COLLECTION, solConnection } from "../config";
 import SkeletonCard from "../components/SkeletonCard";
 import { getNftMetaData } from "../contexts/helper";
 import {
@@ -40,7 +40,7 @@ export default function Bootcamp({ bootCampIndex, setBootCampIndex }) {
       for (let item of unstakedNftList) {
         if (
           item.data.creators &&
-          item.data.creators[0]?.address === APE_CREATOR &&
+          (item.data.creators[0]?.address === IMMUTABLE_COLLECTION || item.data.creators[0]?.address === MUTABLE_COLLECTION) &&
           item.data.creators[0]?.verified
         ) {
           await fetch(item.data.uri)
