@@ -3783,6 +3783,10 @@ button.full-width-cta {
   width: 380px;
 }
 
+.rebirth-content .juiced-card.selected {
+  box-shadow: 0 0 10px 4px #2fbb7ad4, 0 0 20px 5px blue;
+}
+
 .rebirth-content .juiced-card .sub-title {
   display: flex;
   align-items: center;

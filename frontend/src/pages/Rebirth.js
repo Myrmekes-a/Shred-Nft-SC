@@ -23,6 +23,7 @@ export default function Rebirth() {
   // const [userJuicedNFTs, setUserJuicedNFTs] = useState([]);
   // const [userJuicedBootCampNFTs, setUserJuicedBootCampNFTs] = useState([]);
   const [walletNFTs, setWalletNFTs] = useState([]);
+  const [selectedNFTs, setSelectedNFTs] = useState([]);
   // const [walleMutabletNFTs, setWalletMutableNFTs] = useState([]);
 
   // const [stakedLoading, setStakedLoading] = useState(false);
@@ -215,7 +216,7 @@ export default function Rebirth() {
     //   );
     // }
 
-    const unstakedNFTs = walletNFTs
+    const unstakedNFTs = selectedNFTs
       .filter((nft) => !nft.isUpgraded)
       .map((nft) => new PublicKey(nft.address));
     console.log("unstaked NFTs -->", unstakedNFTs);
@@ -230,6 +231,20 @@ export default function Rebirth() {
     }
   };
 
+  const handleCardClicked = (item) => () => {
+    if (item.isUpgraded) return;
+    setSelectedNFTs((old) => {
+      const newSelects = Object.assign(old);
+      const idx = newSelects
+        .map((select) => select.address)
+        .indexOf(item.address);
+      if (idx === -1) newSelects.push(item);
+      else newSelects.splice(idx, 1);
+      return newSelects;
+    });
+    setForceRender((old) => !old);
+  };
+
   const updatePage = () => {
     console.log("Update >>");
   };
@@ -237,6 +252,7 @@ export default function Rebirth() {
   const getMyNfts = async () => {
     // setWalletMutableNFTs([]);
     setWalletNFTs([]);
+    setSelectedNFTs([]);
     setForceRender((old) => !old);
     setUnStakedLoading(true);
 
@@ -299,6 +315,7 @@ export default function Rebirth() {
   useEffect(() => {
     if (!wallet.publicKey) {
       setWalletNFTs([]);
+      setSelectedNFTs([]);
       // setWalletMutableNFTs([]);
       // setUserStakedNFTs([]);
       // setUserStakedBootCampNFTs([]);
@@ -389,7 +406,9 @@ export default function Rebirth() {
         <div className="juiced-nft-list">
           <div className="all-nft-mutable">
             <button className="non-mutable-btn" onClick={rebirthNft}>
-              <span>Upgrade all NFTs</span>
+              <span>
+                Upgrade {selectedNFTs.length ? selectedNFTs.length : "all"} NFTs
+              </span>
             </button>
           </div>
           <div className="title">
@@ -464,6 +483,14 @@ export default function Rebirth() {
                   // nftList={walleMutabletNFTs}
                   newMetaLink={item.newMetaLink}
                   rebirthMetaLink={item.rebirthMetaLink}
+                  selected={
+                    !(
+                      selectedNFTs
+                        .map((select) => select.address)
+                        .indexOf(item.address) === -1
+                    )
+                  }
+                  onClick={handleCardClicked(item)}
                 />
               ))}
           </div>

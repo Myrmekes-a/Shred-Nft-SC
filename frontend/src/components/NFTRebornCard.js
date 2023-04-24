@@ -14,6 +14,8 @@ export default function NFTRebornCard({
   newMetaLink,
   rebirthMetaLink,
   // nftList,
+  selected,
+  onClick,
   stake,
   bootcamp,
 }) {
@@ -25,12 +27,7 @@ export default function NFTRebornCard({
   const [upgraded, setUpgraded] = useState(mutable);
 
   const setImage = () => {
-    // let i;
-    // for (i = 0; i < nftList.length; i++) {
-    //   if (nftList[i].oldaddress === address) {
-    //     break;
-    //   }
-    // }
+    onClick();
   };
 
   const mutableNft = async () => {
@@ -71,7 +68,10 @@ export default function NFTRebornCard({
   useEffect(() => {}, [upgraded, wallet.connected, wallet.publicKey]);
 
   return (
-    <div className="juiced-card" onClick={setImage}>
+    <div
+      className={`juiced-card ${selected ? "selected" : ""}`}
+      onClick={setImage}
+    >
       <img src={mutableImage} alt="" />
       <h2>{nftTitle}</h2>
       {upgraded ? (
