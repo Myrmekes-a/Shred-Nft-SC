@@ -365,34 +365,34 @@ export default function Rebirth() {
             </p>
             <p>
               The more NFTs you upgrade, the lower the price will be. The
-              pricing works as followed:
+              pricing is accumulative and works as follows:
             </p>
           </div>
           <div className="prices-line">
             <div className="price-item">
               <h3>1-2 NFTs:</h3>
-              <p>0.7 SOL</p>
-            </div>
-            <div className="line">
-              <hr />
-            </div>
-            <div className="price-item">
-              <h3>3-5 NFTs:</h3>
               <p>0.6 SOL</p>
             </div>
             <div className="line">
               <hr />
             </div>
             <div className="price-item">
-              <h3>6-11 NFTs:</h3>
+              <h3>3-5 NFTs:</h3>
               <p>0.5 SOL</p>
             </div>
             <div className="line">
               <hr />
             </div>
             <div className="price-item">
-              <h3>12-23 NFTs:</h3>
+              <h3>6-11 NFTs:</h3>
               <p>0.4 SOL</p>
+            </div>
+            <div className="line">
+              <hr />
+            </div>
+            <div className="price-item">
+              <h3>12-23 NFTs:</h3>
+              <p>0.35 SOL</p>
             </div>
             <div className="line">
               <hr />
