@@ -1,6 +1,12 @@
 pub const STAKE_MAX_COUNT: usize = 100;
 
 pub const GLOBAL_AUTHORITY_SEED: &str = "global-authority";
+
+pub const JUICING_GLOBAL_AUTHORITY_SEED: &str = "juicing-global-authority";
+pub const JUICING_SOL_VAULT_SEED: &str = "sol-vault";
+pub const JUICING_NFT_POOL_SEED: &str = "juicing-nft-pool";
+pub const JUICING_USER_POOL_SEED: &str = "user-pool";
+
 pub const EPOCH: i64 = 1;                          // 86400 - 1 day
 pub const FACTOR: u64 = 125;                            // X 1.25 Reward
 pub const NORMAL_REWARD_AMOUNT: u64 = 116;     // 10 $WHEY

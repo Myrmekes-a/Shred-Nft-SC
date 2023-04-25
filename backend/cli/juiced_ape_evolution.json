@@ -88,6 +88,37 @@
       ]
     },
     {
+      "name": "initializeUserPool",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "withdrawTreasuryFunds",
       "accounts": [
         {
@@ -249,9 +280,19 @@
       "name": "juicingNft",
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "nftMint",
@@ -274,16 +315,6 @@
           "isSigner": false
         },
         {
-          "name": "userCostTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "costTokenVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "mintMetadata",
           "isMut": true,
           "isSigner": false
@@ -292,11 +323,6 @@
           "name": "updateAuthority",
           "isMut": false,
           "isSigner": true
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
         },
         {
           "name": "tokenMetadataProgram",
@@ -311,15 +337,7 @@
       ],
       "args": [
         {
-          "name": "globalBump",
-          "type": "u8"
-        },
-        {
-          "name": "solBump",
-          "type": "u8"
-        },
-        {
-          "name": "juiceUri",
+          "name": "rebirthUri",
           "type": "string"
         }
       ]
@@ -328,9 +346,19 @@
       "name": "switchingNft",
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "nftMint",
@@ -358,11 +386,6 @@
           "isSigner": true
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "tokenMetadataProgram",
           "isMut": false,
           "isSigner": false
@@ -370,11 +393,11 @@
       ],
       "args": [
         {
-          "name": "globalBump",
-          "type": "u8"
+          "name": "genesisUri",
+          "type": "string"
         },
         {
-          "name": "uri",
+          "name": "rebirthUri",
           "type": "string"
         }
       ]
@@ -432,6 +455,22 @@
           }
         ]
       }
+    },
+    {
+      "name": "UserPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "juicedCount",
+            "type": "u64"
+          }
+        ]
+      }
     }
   ],
   "errors": [
@@ -462,61 +501,66 @@
     },
     {
       "code": 6005,
+      "name": "InvalidNftPool",
+      "msg": "Invalid Nft Pool Mint"
+    },
+    {
+      "code": 6006,
       "name": "CollectionNotExist",
       "msg": "Collection Address Is Not Exist"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "CollectionAlreadyExist",
       "msg": "Collection Address Already Added"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidNFTAddress",
       "msg": "Invalid NFT Address"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "InvalidMetadata",
       "msg": "Invalid Metadata Address"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "MetadataCreatorParseError",
       "msg": "Can't Parse The NFT's Creators"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "UnkownOrNotAllowedNFTCollection",
       "msg": "Unknown Collection Or The Collection Is Not Allowed"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "NotEvolvedYet",
       "msg": "Not Enough Evolution Period"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "InsufficientEvolutionFee",
       "msg": "Not Enough Evolution Fee in User Account"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InsufficientTreasuryFunds",
       "msg": "Not Enough Treasury Balance"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidJuicingRequest",
       "msg": "Already Juiced before"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "InvalidNftId",
       "msg": "No matching Id"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "InvalidMutableRequest",
       "msg": "Already converted to be mutable!"
     }

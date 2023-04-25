@@ -94,8 +94,16 @@ impl UserPool {
             last_reward_time = self.staked_mints[index].staked_time;
         }
         if self.staked_mints[index].is_legendary == 1 {
+            // reward for legendary NFT
             reward_amount = LEGENDARY_REWARD_AMOUNT;
+        } else if self.staked_mints[index].is_legendary == 3 {
+            // reward for upgraded normal NFT
+            reward_amount = NORMAL_REWARD_AMOUNT * 2;
+        } else if self.staked_mints[index].is_legendary == 4 {
+            // reward for upgraded legendary NFT
+            reward_amount = LEGENDARY_REWARD_AMOUNT * 2;
         }
+
         match self.staked_mints[index].tier {
             1 => {
                 if self.tier1_staked_count > 2 {
@@ -169,7 +177,14 @@ impl UserPool {
             let mut factor: u64 = 100;
             let mut reward_amount: u64 = NORMAL_REWARD_AMOUNT;
             if self.staked_mints[index].is_legendary == 1 {
+                // reward for legendary NFT
                 reward_amount = LEGENDARY_REWARD_AMOUNT;
+            } else if self.staked_mints[index].is_legendary == 3 {
+                // reward for upgraded normal NFT
+                reward_amount = NORMAL_REWARD_AMOUNT * 2;
+            } else if self.staked_mints[index].is_legendary == 4 {
+                // reward for upgraded legendary NFT
+                reward_amount = LEGENDARY_REWARD_AMOUNT * 2;
             }
 
             match self.staked_mints[index].tier {
@@ -211,5 +226,18 @@ impl UserPool {
                 break;
             }
         }
+    }
+
+    pub fn change_for_rebirth(&mut self, nft_mint: Pubkey) -> Result<()> {
+        for i in 0..self.staked_count {
+            let idx = i as usize;
+            if self.staked_mints[idx].mint.eq(&nft_mint) {
+                // update is_legendary as 3 or 4 for upgraded NFT
+                self.staked_mints[idx].is_legendary += 3;
+                return Ok(());
+            }
+        }
+
+        Err(Error::from(StakingError::InvalidNFTAddress))
     }
 }

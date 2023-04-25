@@ -298,6 +298,86 @@ export type ShredStaking = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "juicingNft",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "globalAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "juicingUserPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingNftPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingGlobalAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingSolVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "updateAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "globalBump",
+          "type": "u8"
+        },
+        {
+          "name": "rebirthUri",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -425,6 +505,11 @@ export type ShredStaking = {
       "code": 6009,
       "name": "InvalidMutableRequest",
       "msg": "Already converted to be mutable!"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidJuicingRequest",
+      "msg": "Already upgraded for juicing!"
     }
   ]
 };
@@ -729,6 +814,86 @@ export const IDL: ShredStaking = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "juicingNft",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "globalAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "juicingUserPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingNftPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingGlobalAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingSolVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "updateAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "globalBump",
+          "type": "u8"
+        },
+        {
+          "name": "rebirthUri",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -856,6 +1021,11 @@ export const IDL: ShredStaking = {
       "code": 6009,
       "name": "InvalidMutableRequest",
       "msg": "Already converted to be mutable!"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidJuicingRequest",
+      "msg": "Already upgraded for juicing!"
     }
   ]
 };

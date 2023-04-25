@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use metaplex_token_metadata::state::Metadata;
 
+use juiced_ape_evolution::cpi::accounts::JuicingNft;
 use juiced_ape_evolution::cpi::accounts::NftToMutable;
 use juiced_ape_evolution::program::JuicedApeEvolution;
 pub use juiced_ape_evolution::{self};
@@ -70,7 +71,9 @@ pub mod shred_bootcamp {
             let mut valid: u8 = 0;
             let mut collection: Pubkey = Pubkey::default();
             for creator in creators {
-                if creator.address.to_string() == COLLECTION_ADDRESS || creator.address.to_string() == NEW_COLLECTION_ADDRESS {
+                if creator.address.to_string() == COLLECTION_ADDRESS
+                    || creator.address.to_string() == NEW_COLLECTION_ADDRESS
+                {
                     valid = 1;
                     collection = creator.address;
                     break;
@@ -145,6 +148,7 @@ pub mod shred_bootcamp {
         // Err(ProgramError::from(StakingError::InvalidSuperOwner))
         Ok(0)
     }
+
     #[access_control(user(&ctx.accounts.user_pool, &ctx.accounts.owner))]
     pub fn withdraw_nft_from_pool(
         ctx: Context<WithdrawNftFromPool>,
@@ -186,6 +190,7 @@ pub mod shred_bootcamp {
         // Err(ProgramError::from(StakingError::InvalidSuperOwner))
         Ok(0)
     }
+
     #[access_control(user(&ctx.accounts.user_pool, &ctx.accounts.owner))]
     pub fn claim_reward(ctx: Context<ClaimReward>, global_bump: u8) -> Result<u8> {
         let timestamp = Clock::get()?.unix_timestamp;
@@ -275,6 +280,98 @@ pub mod shred_bootcamp {
 
         let mut user_pool = ctx.accounts.user_pool.load_mut()?;
         user_pool.change_mint(nft_mint.key(), ctx.accounts.new_nft_mint.key());
+
+        Ok(())
+    }
+
+    #[access_control(user(&ctx.accounts.user_pool, &ctx.accounts.owner))]
+    pub fn juicing_nft(
+        ctx: Context<RebirthNftFromJuicing>,
+        global_bump: u8,
+        rebirth_uri: String,
+    ) -> Result<()> {
+        let global_authority = &mut ctx.accounts.global_authority;
+        let mut user_pool = ctx.accounts.user_pool.load_mut()?;
+        let nft_mint = &mut ctx.accounts.nft_mint;
+
+        let mint_metadata = &mut &ctx.accounts.mint_metadata;
+
+        msg!("Metadata Account: {:?}", ctx.accounts.mint_metadata.key());
+        let (metadata, _) = Pubkey::find_program_address(
+            &[
+                metaplex_token_metadata::state::PREFIX.as_bytes(),
+                metaplex_token_metadata::id().as_ref(),
+                nft_mint.key().as_ref(),
+            ],
+            &metaplex_token_metadata::id(),
+        );
+        require!(
+            metadata == mint_metadata.key(),
+            StakingError::InvaliedMetadata
+        );
+
+        // verify metadata is legit
+        let nft_metadata = Metadata::from_account_info(mint_metadata)?;
+
+        if let Some(creators) = nft_metadata.data.creators {
+            let mut valid: u8 = 0;
+            let mut collection: Pubkey = Pubkey::default();
+            for creator in creators {
+                if creator.address.to_string() == NEW_COLLECTION_ADDRESS && creator.verified == true
+                {
+                    valid = 1;
+                    collection = creator.address;
+                    break;
+                }
+            }
+
+            require!(valid == 1, StakingError::UnkownOrNotAllowedNFTCollection);
+            msg!("Collection= {:?}", collection);
+        } else {
+            return Err(Error::from(StakingError::MetadataCreatorParseError));
+        };
+
+        // check already upgraded
+        let juicing_nft_pool = &mut ctx.accounts.juicing_nft_pool;
+        require!(
+            juicing_nft_pool.is_paid == false,
+            StakingError::InvalidJuicingRequest
+        );
+
+        let seeds = &[GLOBAL_AUTHORITY_SEED.as_bytes(), &[global_bump]];
+        let signer = &[&seeds[..]];
+
+        let cpi_accounts = JuicingNft {
+            payer: ctx.accounts.owner.to_account_info(),
+            owner: global_authority.to_account_info().clone(),
+            user_pool: ctx.accounts.juicing_user_pool.to_account_info(),
+            nft_mint: nft_mint.to_account_info().clone(),
+            nft_pool: juicing_nft_pool.to_account_info().clone(),
+            global_authority: ctx
+                .accounts
+                .juicing_global_authority
+                .to_account_info()
+                .clone(),
+            sol_vault: ctx.accounts.juicing_sol_vault.to_account_info().clone(),
+            mint_metadata: ctx.accounts.mint_metadata.to_account_info().clone(),
+            update_authority: ctx.accounts.update_authority.to_account_info().clone(),
+            token_metadata_program: ctx
+                .accounts
+                .token_metadata_program
+                .to_account_info()
+                .clone(),
+            system_program: ctx.accounts.system_program.clone().to_account_info(),
+        };
+        juiced_ape_evolution::cpi::juicing_nft(
+            CpiContext::new_with_signer(
+                ctx.accounts.juicing_program.clone().to_account_info(),
+                cpi_accounts,
+                signer,
+            ),
+            rebirth_uri,
+        )?;
+
+        user_pool.change_for_rebirth(nft_mint.key())?;
 
         Ok(())
     }
@@ -511,6 +608,80 @@ pub struct MutBootcampNft<'info> {
     pub token_metadata_program: AccountInfo<'info>,
 
     pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+#[instruction(
+    global_bump: u8,
+)]
+pub struct RebirthNftFromJuicing<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [GLOBAL_AUTHORITY_SEED.as_ref()],
+        bump = global_bump,
+    )]
+    pub global_authority: Box<Account<'info, GlobalPool>>,
+
+    #[account(mut)]
+    pub user_pool: AccountLoader<'info, UserPool>,
+
+    pub nft_mint: Account<'info, Mint>,
+
+    #[account(
+        mut,
+        seeds=[JUICING_USER_POOL_SEED.as_ref(), global_authority.to_account_info().key.as_ref()],
+        seeds::program=juicing_program.key(),
+        bump,
+    )]
+    pub juicing_user_pool: Box<Account<'info, juiced_ape_evolution::account::UserPool>>,
+
+    #[account(
+        mut,
+        seeds=[JUICING_NFT_POOL_SEED.as_ref(), nft_mint.to_account_info().key.as_ref()],
+        seeds::program=juicing_program.key(),
+        bump,
+    )]
+    pub juicing_nft_pool: Box<Account<'info, juiced_ape_evolution::account::NftPool>>,
+
+    #[account(
+        mut,
+        seeds = [JUICING_GLOBAL_AUTHORITY_SEED.as_ref()],
+        seeds::program=juicing_program.key(),
+        bump,
+    )]
+    pub juicing_global_authority: Box<Account<'info, juiced_ape_evolution::account::GlobalPool>>,
+
+    #[account(
+        mut,
+        seeds=[JUICING_SOL_VAULT_SEED.as_ref()],
+        seeds::program=juicing_program.key(),
+        bump,
+    )]
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub juicing_sol_vault: AccountInfo<'info>,
+
+    pub juicing_program: Program<'info, JuicedApeEvolution>,
+
+    #[account(
+        mut,
+        constraint = mint_metadata.owner == &metaplex_token_metadata::ID,
+    )]
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub mint_metadata: AccountInfo<'info>,
+
+    pub update_authority: Signer<'info>,
+
+    // pub token_program: Program<'info, Token>,
+    #[account(
+        constraint = token_metadata_program.key == &metaplex_token_metadata::ID
+    )]
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub token_metadata_program: AccountInfo<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
 // Access control modifiers

@@ -22,4 +22,6 @@ pub enum StakingError {
     UnkownOrNotAllowedNFTCollection,
     #[msg("Already converted to be mutable!")]
     InvalidMutableRequest,
+    #[msg("Already upgraded for juicing!")]
+    InvalidJuicingRequest,
 }
