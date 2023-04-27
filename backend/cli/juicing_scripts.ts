@@ -127,14 +127,7 @@ const main = async () => {
   // await initProject();
 
   const globalPool: GlobalPool = await getGlobalState();
-  console.log(
-    "globalPool =",
-    globalPool.superAdmin.toBase58(),
-    globalPool.juicingFeeWhey.toNumber(),
-    globalPool.juicingFeeSol.toNumber(),
-    globalPool.totalJuicedCount.toNumber(),
-    globalPool.totalMutedCount.toNumber()
-  );
+  console.log("globalPool =", globalPool.superAdmin.toBase58());
 
   // await initUserPool(payer.publicKey);
   // await initNftPool(new PublicKey("CGt2VquBba9shqbzCMfYkzpWF2kwBYDFQXJXayV4TtFt"));
