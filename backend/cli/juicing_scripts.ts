@@ -134,12 +134,15 @@ const main = async () => {
   // await stakeNft(payer.publicKey, new PublicKey('DjuU7P74S2oDtDqLqFDBSnnvR9aqasQFMP3YN6ReeovX'), false, 1);
   // await withdrawNft(payer.publicKey, new PublicKey('D8c3sRRgryP5iaaqKLkaE7Gv3NQGYFdMzkkdxrfBz7n'));
   // await claimReward(payer.publicKey);
+  // await manualWithdraw(
+  //   new PublicKey("13xvSRjA93rs4ENDFrvu7HH6gM3d6sLCKanxD6vCKGgd")
+  // );
 
   // const stakedInfo = await getStakedNFTsFromWallet(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7'));
   // console.log(stakedInfo);
-  const userPool: UserPool = await getUserPoolState(payer.publicKey);
-  console.log(userPool.owner.toBase58());
-  console.log(userPool.juicedCount.toNumber());
+  // const userPool: UserPool = await getUserPoolState(payer.publicKey);
+  // console.log(userPool.owner.toBase58());
+  // console.log(userPool.juicedCount.toNumber());
   // console.log({
   //     owner: userPool.owner.toBase58(),
   //     stakedMints: userPool.stakedMints.slice(0, userPool.stakedCount.toNumber()).map((info) => {
@@ -434,6 +437,42 @@ export const initUserPool = async () => {
 
   await solConnection.confirmTransaction(tx, "confirmed");
 
+  console.log("Your transaction signature", tx);
+};
+
+export const manualWithdraw = async (nftMint: PublicKey) => {
+  let userAddress = payer.publicKey;
+  console.log("userAddress: ", userAddress.toBase58());
+
+  const [juicingGlobal, bump] = await PublicKey.findProgramAddress(
+    [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
+    juicingProgramId
+  );
+  console.log("JuicingGlobalAuthority: ", juicingGlobal.toBase58());
+
+  const vaultTokenAccount = await getAssociatedTokenAccount(
+    juicingGlobal,
+    nftMint
+  );
+  const { instructions, destinationAccounts } =
+    await getATokenAccountsNeedCreate(solConnection, userAddress, userAddress, [
+      nftMint,
+    ]);
+  console.log("userATA", destinationAccounts[0].toBase58());
+
+  const tx = await juicingProgram.rpc.manualWithdraw(bump, {
+    accounts: {
+      admin: userAddress,
+      globalAuthority: juicingGlobal,
+      nftMint,
+      userTokenAccount: destinationAccounts[0],
+      vaultTokenAccount,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    },
+    instructions: [...instructions],
+    signers: [],
+  });
+  await solConnection.confirmTransaction(tx, "confirmed");
   console.log("Your transaction signature", tx);
 };
 

@@ -16,10 +16,10 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.25.0"
-anchor-spl = "0.25.0"
+anchor-lang = "0.26.0"
+anchor-spl = "0.26.0"
 spl-token = "3.2.0"
-solana-program = "^1.9.5"
-metaplex-token-metadata = { version = "0.0.1", features = ["no-entrypoint"] }
+solana-program = "1.14"
+mpl-token-metadata = { version = "1.9.0", features = ["no-entrypoint"] }
 
 Juiced_Ape_Evolution = { path = "../Juiced_Ape_Evolution", features = ["cpi"] }

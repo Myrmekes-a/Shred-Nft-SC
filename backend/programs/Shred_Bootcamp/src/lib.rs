@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
-use metaplex_token_metadata::state::Metadata;
+use mpl_token_metadata::state::{Metadata, TokenMetadataAccount};
 
 use juiced_ape_evolution::cpi::accounts::JuicingNft;
 use juiced_ape_evolution::cpi::accounts::NftToMutable;
@@ -47,11 +47,11 @@ pub mod shred_bootcamp {
         msg!("Metadata Account: {:?}", ctx.accounts.mint_metadata.key());
         let (metadata, _) = Pubkey::find_program_address(
             &[
-                metaplex_token_metadata::state::PREFIX.as_bytes(),
-                metaplex_token_metadata::id().as_ref(),
+                mpl_token_metadata::state::PREFIX.as_bytes(),
+                mpl_token_metadata::id().as_ref(),
                 ctx.accounts.nft_mint.key().as_ref(),
             ],
-            &metaplex_token_metadata::id(),
+            &mpl_token_metadata::id(),
         );
         require!(
             metadata == mint_metadata.key(),
@@ -299,11 +299,11 @@ pub mod shred_bootcamp {
         msg!("Metadata Account: {:?}", ctx.accounts.mint_metadata.key());
         let (metadata, _) = Pubkey::find_program_address(
             &[
-                metaplex_token_metadata::state::PREFIX.as_bytes(),
-                metaplex_token_metadata::id().as_ref(),
+                mpl_token_metadata::state::PREFIX.as_bytes(),
+                mpl_token_metadata::id().as_ref(),
                 nft_mint.key().as_ref(),
             ],
-            &metaplex_token_metadata::id(),
+            &mpl_token_metadata::id(),
         );
         require!(
             metadata == mint_metadata.key(),
@@ -466,7 +466,7 @@ pub struct StakeNftToPool<'info> {
     pub user_reward_account: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
-    #[account(constraint = token_metadata_program.key == &metaplex_token_metadata::ID)]
+    #[account(constraint = token_metadata_program.key == &mpl_token_metadata::ID)]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,
 }
@@ -603,7 +603,7 @@ pub struct MutBootcampNft<'info> {
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub mint_metadata: AccountInfo<'info>,
 
-    #[account(constraint = token_metadata_program.key == &metaplex_token_metadata::ID)]
+    #[account(constraint = token_metadata_program.key == &mpl_token_metadata::ID)]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,
 
@@ -667,7 +667,7 @@ pub struct RebirthNftFromJuicing<'info> {
 
     #[account(
         mut,
-        constraint = mint_metadata.owner == &metaplex_token_metadata::ID,
+        constraint = mint_metadata.owner == &mpl_token_metadata::ID,
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub mint_metadata: AccountInfo<'info>,
@@ -676,7 +676,7 @@ pub struct RebirthNftFromJuicing<'info> {
 
     // pub token_program: Program<'info, Token>,
     #[account(
-        constraint = token_metadata_program.key == &metaplex_token_metadata::ID
+        constraint = token_metadata_program.key == &mpl_token_metadata::ID
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,

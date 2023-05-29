@@ -2,9 +2,9 @@ use anchor_lang::{
     prelude::*,
 };
 use anchor_spl::token::{ self, Token, TokenAccount, Transfer, Mint};
-use metaplex_token_metadata::{
-    instruction::update_metadata_accounts,
-    state::{Metadata, MAX_URI_LENGTH},
+use mpl_token_metadata::{
+    instruction::update_metadata_accounts_v2,
+    state::{Metadata, MAX_URI_LENGTH, TokenMetadataAccount},
 };
 use solana_program::program::{invoke, invoke_signed};
 use solana_program::system_instruction;
@@ -23,6 +23,8 @@ declare_id!("6UGs1n5peX4pYhwRofoDvtVaz8sToP8kByU24576wQt4");
 
 #[program]
 pub mod juiced_ape_evolution {
+    use mpl_token_metadata::state::DataV2;
+
     use super::*;
 
     pub fn initialize(
@@ -118,6 +120,37 @@ pub mod juiced_ape_evolution {
         Ok(())
     }
 
+    pub fn manual_withdraw(
+        ctx: Context<ManualWithdraw>,
+        global_bump: u8,
+    ) -> Result<()> {
+        let global_authority = &mut &ctx.accounts.global_authority;
+        require!(
+            global_authority.super_admin == ctx.accounts.admin.key(),
+            EvolutionError::InvalidSuperOwner
+        );
+
+        let token_program = &mut &ctx.accounts.token_program;
+        let seeds = &[GLOBAL_AUTHORITY_SEED.as_bytes(), &[global_bump]];
+        let signer = &[&seeds[..]];
+
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.vault_token_account.to_account_info().clone(),
+            to: ctx.accounts.user_token_account.to_account_info().clone(),
+            authority: ctx.accounts.global_authority.to_account_info()
+        };
+        token::transfer(
+            CpiContext::new_with_signer(
+                token_program.clone().to_account_info(), 
+                cpi_accounts, 
+                signer
+            ),
+            1
+        )?;
+
+        Ok(())
+    }
+
     pub fn withdraw_sol(
         ctx:Context<WithdrawSol>,
         _global_bump: u8,
@@ -165,11 +198,11 @@ pub mod juiced_ape_evolution {
 
         let (metadata, _) = Pubkey::find_program_address(
             &[
-                metaplex_token_metadata::state::PREFIX.as_bytes(),
-                metaplex_token_metadata::id().as_ref(),
+                mpl_token_metadata::state::PREFIX.as_bytes(),
+                mpl_token_metadata::id().as_ref(),
                 ctx.accounts.nft_mint.key().as_ref(),
             ],
-            &metaplex_token_metadata::id(),
+            &mpl_token_metadata::id(),
         );
         require!(metadata == mint_metadata.key(), EvolutionError::InvalidMetadata);
 
@@ -273,11 +306,11 @@ pub mod juiced_ape_evolution {
 
         let (metadata, _) = Pubkey::find_program_address(
             &[
-                metaplex_token_metadata::state::PREFIX.as_bytes(),
-                metaplex_token_metadata::id().as_ref(),
+                mpl_token_metadata::state::PREFIX.as_bytes(),
+                mpl_token_metadata::id().as_ref(),
                 nft_pool.mint.as_ref(),
             ],
-            &metaplex_token_metadata::id(),
+            &mpl_token_metadata::id(),
         );
         require!(
             metadata == mint_metadata.key(),
@@ -351,13 +384,24 @@ pub mod juiced_ape_evolution {
 
         nft_metadata.data.uri = puffed_out_string(&rebirth_uri, MAX_URI_LENGTH);
 
+        let data_v2: DataV2 = DataV2 {
+            name: nft_metadata.data.name,
+            symbol: nft_metadata.data.symbol,
+            uri: nft_metadata.data.uri,
+            seller_fee_basis_points: nft_metadata.data.seller_fee_basis_points,
+            creators: nft_metadata.data.creators,
+            collection: nft_metadata.collection,
+            uses: nft_metadata.uses
+        };
+
         invoke(
-            &update_metadata_accounts(
+            &update_metadata_accounts_v2(
                 token_metadata_program.key(),
                 mint_metadata.key(),
                 update_authority.key(),
                 Some(update_authority.key()),
-                Some(nft_metadata.data),
+                Some(data_v2),
+                None,
                 None,
             ),
             &[
@@ -410,11 +454,11 @@ pub mod juiced_ape_evolution {
 
         let(metadata, _) = Pubkey::find_program_address(
             &[
-                metaplex_token_metadata::state::PREFIX.as_bytes(),
-                metaplex_token_metadata::id().as_ref(),
+                mpl_token_metadata::state::PREFIX.as_bytes(),
+                mpl_token_metadata::id().as_ref(),
                 ctx.accounts.nft_mint.key().as_ref(),
             ],
-            &metaplex_token_metadata::id(),
+            &mpl_token_metadata::id(),
         );
         require!(
             metadata == mint_metadata.key(),
@@ -434,13 +478,25 @@ pub mod juiced_ape_evolution {
         let token_metadata_program = &ctx.accounts.token_metadata_program;
 
         nft_metadata.data.uri = puffed_out_string(&uri, MAX_URI_LENGTH);
+        
+        let data_v2: DataV2 = DataV2 {
+            name: nft_metadata.data.name,
+            symbol: nft_metadata.data.symbol,
+            uri: nft_metadata.data.uri,
+            seller_fee_basis_points: nft_metadata.data.seller_fee_basis_points,
+            creators: nft_metadata.data.creators,
+            collection: nft_metadata.collection,
+            uses: nft_metadata.uses
+        };
+
         invoke(
-            &update_metadata_accounts(
+            &update_metadata_accounts_v2(
                 token_metadata_program.key(),
                 mint_metadata.key(),
                 update_authority.key(),
                 Some(update_authority.key()),
-                Some(nft_metadata.data),
+                Some(data_v2),
+                None,
                 None,
             ),
             &[
@@ -513,6 +569,40 @@ pub struct InitializeUserPool<'info> {
     
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(
+    bump: u8, 
+)]
+pub struct ManualWithdraw<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [GLOBAL_AUTHORITY_SEED.as_ref()],
+        bump,
+    )]
+    pub global_authority: Box<Account<'info, GlobalPool>>,
+
+    pub nft_mint: Box<Account<'info, Mint>>,
+
+    #[account(
+        mut,
+        constraint = user_token_account.mint == nft_mint.key(),
+        constraint = user_token_account.owner == admin.key(),
+    )]
+    pub user_token_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut,
+        constraint = vault_token_account.mint == nft_mint.key(),
+        constraint = vault_token_account.owner == global_authority.key(),
+    )]
+    pub vault_token_account: Box<Account<'info, TokenAccount>>,
+   
+    pub token_program: Program<'info, Token>,
 }
 
 #[derive(Accounts)]
@@ -627,7 +717,7 @@ pub struct NftToMutable<'info> {
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub mint_metadata: AccountInfo<'info>,
 
-    #[account(constraint = token_metadata_program.key == &metaplex_token_metadata::ID)]
+    #[account(constraint = token_metadata_program.key == &mpl_token_metadata::ID)]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,
 
@@ -688,7 +778,7 @@ pub struct JuicingNft<'info> {
 
     #[account(
         mut,
-        constraint = mint_metadata.owner == &metaplex_token_metadata::ID,
+        constraint = mint_metadata.owner == &mpl_token_metadata::ID,
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub mint_metadata: AccountInfo<'info>,
@@ -698,7 +788,7 @@ pub struct JuicingNft<'info> {
     // pub token_program: Program<'info, Token>,
 
     #[account(
-        constraint = token_metadata_program.key == &metaplex_token_metadata::ID
+        constraint = token_metadata_program.key == &mpl_token_metadata::ID
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,
@@ -738,7 +828,7 @@ pub struct SwitchToShreddedNft<'info> {
 
     #[account(
         mut,
-        constraint = mint_metadata.owner == &metaplex_token_metadata::ID
+        constraint = mint_metadata.owner == &mpl_token_metadata::ID
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub mint_metadata: AccountInfo<'info>,
@@ -746,7 +836,7 @@ pub struct SwitchToShreddedNft<'info> {
     pub update_authority: Signer<'info>,
 
     #[account(
-        constraint = token_metadata_program.key == &metaplex_token_metadata::ID
+        constraint = token_metadata_program.key == &mpl_token_metadata::ID
     )]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_metadata_program: AccountInfo<'info>,
