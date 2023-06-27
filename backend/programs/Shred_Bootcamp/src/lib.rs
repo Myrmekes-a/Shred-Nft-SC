@@ -226,6 +226,24 @@ pub mod shred_bootcamp {
     }
 
     #[access_control(user(&ctx.accounts.user_pool, &ctx.accounts.owner))]
+    pub fn check_reborn(ctx: Context<CheckReborn>) -> Result<u8> {
+        let mut user_pool = ctx.accounts.user_pool.load_mut()?;
+        let juicing_nft_info = &mut ctx.accounts.juicing_nft_info;
+        msg!(
+            "Staked Mint: {:?}, Juiced: {:?}",
+            ctx.accounts.nft_mint.key(),
+            juicing_nft_info.is_juiced
+        );
+
+        if juicing_nft_info.is_juiced == true {
+            user_pool.change_for_rebirth(ctx.accounts.nft_mint.key())?;
+        }
+
+        // Err(ProgramError::from(StakingError::InvalidSuperOwner))
+        Ok(0)
+    }
+
+    #[access_control(user(&ctx.accounts.user_pool, &ctx.accounts.owner))]
     pub fn mut_bootcamp_nft(
         ctx: Context<MutBootcampNft>,
         global_bump: u8,
@@ -537,6 +555,26 @@ pub struct ClaimReward<'info> {
     pub user_reward_account: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct CheckReborn<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    #[account(mut)]
+    pub user_pool: AccountLoader<'info, UserPool>,
+
+    #[account(
+        mut,
+        owner = juicing_program.key(),
+    )]
+    pub juicing_nft_info: Account<'info, juiced_ape_evolution::account::NftPool>,
+
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub nft_mint: AccountInfo<'info>,
+
+    pub juicing_program: Program<'info, JuicedApeEvolution>,
 }
 
 #[derive(Accounts)]

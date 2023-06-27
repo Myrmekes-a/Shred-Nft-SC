@@ -9,3 +9,4 @@ release/
 target/bpfel-unknown-unknown
 update.json
 /**/target/rls
+sbf-solana-solana

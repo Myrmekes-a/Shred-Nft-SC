@@ -160,12 +160,19 @@ const main = async () => {
   //     remainingRewards: userPool.remainingRewards.toNumber(),
   //     lastRewardTime: (new Date(1000 * userPool.lastRewardTime.toNumber())).toLocaleString(),
   // });
+  // const nftPool: NftPool = await getNftPoolState(
+  //   new PublicKey("3c9ciPLu633Sc77JYD2yZnE2dt8LRmKCu1yR1jSEMtGU")
+  // );
+  // console.log(nftPool.mint.toBase58());
+  // console.log("isJuiced", nftPool.isJuiced);
+  // console.log("isMutable", nftPool.isMutable);
+  // console.log("isPaid", nftPool.isPaid);
   // console.log(await calculateAvailableReward(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7')));
   // await mutNftFromBootcamp(new PublicKey("FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7"));
   //   await juicingNft(
   //     new PublicKey("4LfWQP8pLeiWEPipw5oCCkkuQYsjd2uyA96fiP2Eu4Tz")
   //   );
-  await withdrawSolVault();
+  // await withdrawSolVault();
 };
 
 // export const mutNft = async (
@@ -344,7 +351,7 @@ export const initProject = async () => {
     [Buffer.from(JUICING_GLOBAL_AUTHORITY_SEED)],
     juicingProgram.programId
   );
-  const tx = await juicingProgram.rpc.initialize(bump, null, null, null, {
+  const tx = await juicingProgram.rpc.initialize(bump, new PublicKey('FRGkXi49T2R8ikz5J4wBCb3mnydPuWGZoyJ9LMFgXxpS'), null, null, {
     accounts: {
       admin: payer.publicKey,
       globalAuthority,
@@ -657,6 +664,25 @@ export const getUserPoolState = async (
   try {
     let poolState = await juicingProgram.account.userPool.fetch(userPoolKey);
     return poolState as unknown as UserPool;
+  } catch {
+    return null;
+  }
+};
+
+export const getNftPoolState = async (
+  nftMint: PublicKey
+): Promise<NftPool | null> => {
+  if (!nftMint) return null;
+
+  const [nftPoolKey] = await PublicKey.findProgramAddress(
+    [Buffer.from(NFT_POOL_SEED), nftMint.toBuffer()],
+    juicingProgramId
+  );
+  console.log("nftPoolKey: ", nftPoolKey.toBase58());
+
+  try {
+    let poolState = await juicingProgram.account.nftPool.fetch(nftPoolKey);
+    return poolState as unknown as NftPool;
   } catch {
     return null;
   }

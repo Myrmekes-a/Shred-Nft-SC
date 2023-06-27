@@ -221,6 +221,38 @@ export type ShredBootcamp = {
       "returns": "u8"
     },
     {
+      "name": "checkReborn",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingNftInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "juicingProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [],
+      "returns": "u8"
+    },
+    {
       "name": "mutBootcampNft",
       "accounts": [
         {
@@ -769,6 +801,38 @@ export const IDL: ShredBootcamp = {
           "type": "u8"
         }
       ],
+      "returns": "u8"
+    },
+    {
+      "name": "checkReborn",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "juicingNftInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "juicingProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [],
       "returns": "u8"
     },
     {
