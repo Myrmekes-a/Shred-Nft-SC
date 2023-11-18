@@ -12,7 +12,6 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import {
-  Token,
   TOKEN_PROGRAM_ID,
   AccountLayout,
   MintLayout,
@@ -66,7 +65,7 @@ const programId = new anchor.web3.PublicKey(PROGRAM_ID);
 
 anchor.setProvider(
   anchor.AnchorProvider.local(
-    "https://nameless-cool-hill.solana-mainnet.quiknode.pro/8573940e7f293a749e9775b61efc3814c9ff25eb/"
+    "https://lively-proud-moon.solana-mainnet.quiknode.pro/d490b49f6c8766e41845a1f7a0315adcb9d1ea6c/"
   )
 ); //web3.clusterApiUrl("devnet")));
 provider = anchor.getProvider();
@@ -172,7 +171,7 @@ const main = async () => {
   //   await juicingNft(
   //     new PublicKey("4LfWQP8pLeiWEPipw5oCCkkuQYsjd2uyA96fiP2Eu4Tz")
   //   );
-  // await withdrawSolVault();
+  await withdrawSolVault();
 };
 
 // export const mutNft = async (

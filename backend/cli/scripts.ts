@@ -12,7 +12,6 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import {
-  Token,
   TOKEN_PROGRAM_ID,
   AccountLayout,
   MintLayout,
@@ -22,12 +21,14 @@ import {
 import fs from "fs";
 import bs58 from "bs58";
 import { GlobalPool, UserPool } from "./types";
+import { createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 
 export const METAPLEX = new web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
 
 const USER_POOL_SIZE = 5688; // 8 + 5680
+const STAKING_USER_POOL_SIZE = 4864; // 8 + 4856
 const GLOBAL_AUTHORITY_SEED = "global-authority";
 
 const BURN_WALLET_ADDRESS = new PublicKey(
@@ -37,7 +38,8 @@ const BURN_WALLET_ADDRESS = new PublicKey(
 const REWARD_TOKEN_MINT = new PublicKey(
   "Ue4yjkPjA4QGis37eWbBsnqfzyK83BtY4AioDETp3Ab"
 );
-const PROGRAM_ID = "CTniA9cmfobHRaTq8cBawE9Z9VwYAA1ifgRXMGZxVRfc";
+// const PROGRAM_ID = "CTniA9cmfobHRaTq8cBawE9Z9VwYAA1ifgRXMGZxVRfc";
+const PROGRAM_ID = "5Q5FXSHTABC4URi6KUxT9auirRxo86GukRAYBK7Jweo4";
 // GlobalAuthority:  FeV6rLhiGSjTns8c9MEF4qkAQLcvzPVeEabYCskCNYQN
 // RewardVault:  2Ni6PuHDDt6DUVTr26u1oCpmTvi8Htf9Fn95CarpH144
 
@@ -51,6 +53,10 @@ let provider: anchor.Provider = null;
 
 const idl = JSON.parse(
   fs.readFileSync(__dirname + "/../target/idl/shred_bootcamp.json", "utf8")
+);
+
+const stakingIdl = JSON.parse(
+  fs.readFileSync(__dirname + "/../target/idl/shred_staking.json", "utf8")
 );
 
 // Address of the deployed program.
@@ -85,7 +91,7 @@ const juicingIdl = JSON.parse(
   )
 );
 const juicingProgramId = new anchor.web3.PublicKey(JUICING_PROGRAM_ID);
-juicingProgram = new anchor.Program(juicingIdl, juicingProgramId);
+juicingProgram = new anchor.Program(stakingIdl, juicingProgramId);
 
 const TEST_MINT_PUBKEY = new PublicKey(
   "q84f7pisNEbRXheHrJ42VKihZY9xZBDo6ZmYTZ8WJ6v"
@@ -116,42 +122,105 @@ const main = async () => {
 
   // await initProject();
 
-  // const globalPool: GlobalPool = await getGlobalState();
-  // console.log("globalPool =", globalPool.superAdmin.toBase58(), globalPool.totalStakedCount.toNumber());
+  const globalPool: GlobalPool = await getGlobalState();
+  console.log(
+    "globalPool =",
+    globalPool.superAdmin.toBase58(),
+    globalPool.totalStakedCount.toNumber()
+  );
 
-  // await initUserPool(payer.publicKey);
+  // await initUserPool(
+  //   new PublicKey('9Z4MUHNNP46ABnqiEQ2xqTrwPKzZRsDPY5X4FSHzCVr')
+  // );
   // await initNftPool(new PublicKey("CGt2VquBba9shqbzCMfYkzpWF2kwBYDFQXJXayV4TtFt"));
   // await stakeNft(payer.publicKey, new PublicKey('DjuU7P74S2oDtDqLqFDBSnnvR9aqasQFMP3YN6ReeovX'), false, 1);
-  // await withdrawNft(payer.publicKey, new PublicKey('D8c3sRRgryP5iaaqKLkaE7Gv3NQGYFdMzkkdxrfBz7n'));
-  // await claimReward(payer.publicKey);
+  // await withdrawNft(
+  //   new PublicKey('Am9xhPPVCfDZFDabcGgmQ8GTMdsbqEt1qVXbyhTxybAp'),
+  //   new PublicKey('EUarfUzAStABRZRQTCQbrWLV841nhrfTTGYZputt2MQi')
+  // );
+  await claimReward(payer.publicKey);
+  // await getAllStakers();
 
-  // const stakedInfo = await getStakedNFTsFromWallet(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7'));
+  // const stakings = JSON.parse(
+  //   fs.readFileSync('./stakings-work.json', { encoding: 'utf8' })
+  // );
+
+  // let failedStakings = [];
+  // let count = 0;
+  // for(let staking of stakings) {
+  //   let info = {user: staking.user, nfts: []};
+  //   for (let nft of staking.nfts) {
+  //     try {
+  //       await withdrawNft(new PublicKey(staking.user), new PublicKey(nft));
+  //       count++;
+  //     } catch(e) {
+  //       console.log(staking.user, nft, e?.message);
+  //       info.nfts.push(nft);
+  //     }
+  //   }
+  //   if (info.nfts.length > 0) failedStakings.push(info);
+  // }
+
+  // console.log("===> Proceed stakings:", count);
+
+  // fs.writeFileSync('./failed-stakings.json', JSON.stringify(failedStakings));
+
+  // let i = 1;
+  // let chunks = [];
+  // let failedPools = [];
+  // for (; i <= pools.length; i++) {
+  //   if (i % 10 !== 0 && i !== pools.length) continue;
+  //   let stakingInfo = [];
+  //   chunks = pools.slice(i / 10 - 1, i);
+  //   const res = await Promise.all(
+  //     chunks.map(
+  //       (pool) =>
+  //         new Promise(async (resolve, _) => {
+  //           const stakedInfo = await getStakedNFTsFromPool(
+  //             new PublicKey(pool)
+  //           ).catch((_) => {
+  //             failedPools.push(pool);
+  //             return undefined;
+  //           });
+  //           if (stakedInfo && stakedInfo.stakedCount > 0)
+  //             stakingInfo.push(stakedInfo);
+  //           resolve(stakedInfo);
+  //         })
+  //     )
+  //   );
+  //   console.log(i, stakingInfo.length, "---- Awaiting 30s -----");
+  //   await new Promise((resolve) => setTimeout(() => resolve(true), 30000));
+  //   fs.writeFileSync("./stakings.json", JSON.stringify(stakingInfo));
+  // }
+  // fs.writeFileSync("./failed-stakings.json", JSON.stringify(failedPools));
+
+  // const stakedInfo = await getStakedNFTsFromWallet(new PublicKey('igY5JmB7X5zqkzJN6qPoWMjxwxmnQdes8TYAotB1M6s'));
   // console.log(stakedInfo);
-  const userPool: UserPool = await getUserPoolState(
-    new PublicKey("7CAcyNLgejiFxJ2YBGujzKXHWJ5zH2nrtRHShMt7QTRG")
-  );
-  console.log(userPool.owner.toBase58());
-  console.log({
-    owner: userPool.owner.toBase58(),
-    stakedMints: userPool.stakedMints
-      .slice(0, userPool.stakedCount.toNumber())
-      .map((info) => {
-        return {
-          mint: info.mint.toBase58(),
-          stakedTime: info.stakedTime.toNumber(),
-          isLegendary: info.isLegendary,
-          tier: info.tier.toNumber(),
-        };
-      }),
-    stakedCount: userPool.stakedCount.toNumber(),
-    tier1StakedCount: userPool.tier1StakedCount.toNumber(),
-    tier2StakedCount: userPool.tier2StakedCount.toNumber(),
-    tier3StakedCount: userPool.tier3StakedCount.toNumber(),
-    remainingRewards: userPool.remainingRewards.toNumber(),
-    lastRewardTime: new Date(
-      1000 * userPool.lastRewardTime.toNumber()
-    ).toLocaleString(),
-  });
+  // const userPool: UserPool = await getUserPoolState(
+  //   new PublicKey("7CAcyNLgejiFxJ2YBGujzKXHWJ5zH2nrtRHShMt7QTRG")
+  // );
+  // console.log(userPool.owner.toBase58());
+  // console.log({
+  //   owner: userPool.owner.toBase58(),
+  //   stakedMints: userPool.stakedMints
+  //     .slice(0, userPool.stakedCount.toNumber())
+  //     .map((info) => {
+  //       return {
+  //         mint: info.mint.toBase58(),
+  //         stakedTime: info.stakedTime.toNumber(),
+  //         isLegendary: info.isLegendary,
+  //         tier: info.tier.toNumber(),
+  //       };
+  //     }),
+  //   stakedCount: userPool.stakedCount.toNumber(),
+  //   tier1StakedCount: userPool.tier1StakedCount.toNumber(),
+  //   tier2StakedCount: userPool.tier2StakedCount.toNumber(),
+  //   tier3StakedCount: userPool.tier3StakedCount.toNumber(),
+  //   remainingRewards: userPool.remainingRewards.toNumber(),
+  //   lastRewardTime: new Date(
+  //     1000 * userPool.lastRewardTime.toNumber()
+  //   ).toLocaleString(),
+  // });
   // console.log(await calculateAvailableReward(new PublicKey('FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7')));
   // await mutNftFromBootcamp(new PublicKey("FjFAr6J3CUeni9Ssse4fELdCV8Q4cBuSNwkU2xVPp5T7"));
 };
@@ -326,6 +395,25 @@ export const mutNftFromBootcamp = async (stakedNftMint: PublicKey) => {
   console.log("Your transaction signature", tx);
 };
 
+export const getStakedNFTsFromPool = async (address: PublicKey) => {
+  try {
+    let poolState = (await program.account.userPool.fetch(
+      address
+    )) as unknown as UserPool;
+    return {
+      holder: poolState.owner.toBase58(),
+      stakedCount: poolState.stakedCount.toNumber(),
+      stakedMints: poolState.stakedMints
+        .slice(0, poolState.stakedCount.toNumber())
+        .map((info) => {
+          return info.mint.toBase58();
+        }),
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const getStakedNFTsFromWallet = async (address: PublicKey) => {
   const [globalAuthority, bump] = await PublicKey.findProgramAddress(
     [Buffer.from(GLOBAL_AUTHORITY_SEED)],
@@ -430,9 +518,7 @@ export const initUserPool = async (userAddress: PublicKey) => {
       userPool: userPoolKey,
       owner: userAddress,
     },
-    instructions: [
-      // ix
-    ],
+    instructions: [ix],
     signers: [],
   });
   await solConnection.confirmTransaction(tx, "finalized");
@@ -539,12 +625,23 @@ export const stakeNft = async (
 export const withdrawNft = async (userAddress: PublicKey, mint: PublicKey) => {
   let retUser = await getATokenAccountsNeedCreate(
     solConnection,
-    userAddress,
+    payer.publicKey,
     userAddress,
     [mint]
   );
   let userTokenAccount = retUser.destinationAccounts[0];
   console.log("Shred NFT = ", mint.toBase58(), userTokenAccount.toBase58());
+
+  // if (retUser.instructions.length > 0) {
+  //   const tx = new Transaction().add(...retUser.instructions);
+
+  //   tx.feePayer = payer.publicKey;
+  //   tx.recentBlockhash = await (await solConnection.getLatestBlockhash()).blockhash;
+  //   payer.signTransaction(tx);
+
+  //   await solConnection.sendTransaction(tx, [(payer as NodeWallet).payer]);
+  //   await solConnection.confirmTransaction('confirmed');
+  // }
 
   const [globalAuthority, bump] = await PublicKey.findProgramAddress(
     [Buffer.from(GLOBAL_AUTHORITY_SEED)],
@@ -553,7 +650,7 @@ export const withdrawNft = async (userAddress: PublicKey, mint: PublicKey) => {
 
   let { instructions, destinationAccounts } = await getATokenAccountsNeedCreate(
     solConnection,
-    userAddress,
+    payer.publicKey,
     globalAuthority,
     [mint]
   );
@@ -566,8 +663,26 @@ export const withdrawNft = async (userAddress: PublicKey, mint: PublicKey) => {
     program.programId
   );
 
+  // const tx = await program.methods.withdrawNftFromPool(bump).accounts({
+  //     payer: payer.publicKey,
+  //     owner: userAddress,
+  //     userPool: userPoolKey,
+  //     globalAuthority,
+  //     userTokenAccount,
+  //     destNftTokenAccount: destinationAccounts[0],
+  //     nftMint: mint,
+  //     tokenProgram: TOKEN_PROGRAM_ID,
+  //   }).transaction();
+
+  // tx.feePayer = payer.publicKey;
+  // tx.recentBlockhash = await (await solConnection.getLatestBlockhash()).blockhash;
+  // payer.signTransaction(tx);
+
+  // console.log(await solConnection.simulateTransaction(tx));
+
   const tx = await program.rpc.withdrawNftFromPool(bump, {
     accounts: {
+      payer: payer.publicKey,
       owner: userAddress,
       userPool: userPoolKey,
       globalAuthority,
@@ -595,6 +710,7 @@ export const claimReward = async (userAddress: PublicKey) => {
     "user-pool",
     program.programId
   );
+  console.log("userPool =", userPoolKey.toBase58());
 
   let { instructions, destinationAccounts } = await getATokenAccountsNeedCreate(
     solConnection,
@@ -624,6 +740,48 @@ export const claimReward = async (userAddress: PublicKey) => {
   console.log(
     await solConnection.getTokenAccountBalance(destinationAccounts[0])
   );
+};
+
+export const getAllStakers = async () => {
+  const pools = await provider.connection.getParsedProgramAccounts(
+    program.programId,
+    {
+      filters: [
+        {
+          dataSize: STAKING_USER_POOL_SIZE,
+        },
+      ],
+    }
+  );
+  let result = [];
+  let count = 0;
+  pools.map((pool) => {
+    const buffer = pool.account.data as Buffer;
+    let buf;
+    const owner = new PublicKey(buffer.slice(8, 40));
+
+    buf = buffer.slice(40, 48).reverse();
+    const stakedCount = new anchor.BN(buf).toNumber();
+
+    if (!stakedCount) return;
+
+    let nfts = [];
+    for (let i = 0; i < stakedCount; i++) {
+      buf = buffer.slice(i * 48 + 48, i * 48 + 80);
+      const mint = new PublicKey(buf);
+      nfts.push(mint);
+      count++;
+    }
+
+    result.push({
+      user: owner.toBase58(),
+      nfts: nfts.map((nft) => nft.toBase58()),
+    });
+  });
+
+  console.log(`==> Got ${count} stakings`);
+
+  fs.writeFileSync("./stakings.json", JSON.stringify(result));
 };
 
 export const calculateAvailableReward = async (userAddress: PublicKey) => {
@@ -801,8 +959,8 @@ export const getATokenAccountsNeedCreate = async (
     let response = await connection.getAccountInfo(destinationPubkey);
     if (!response) {
       const createATAIx = createAssociatedTokenAccountInstruction(
-        destinationPubkey,
         walletAddress,
+        destinationPubkey,
         owner,
         mint
       );
@@ -816,35 +974,35 @@ export const getATokenAccountsNeedCreate = async (
   };
 };
 
-export const createAssociatedTokenAccountInstruction = (
-  associatedTokenAddress: anchor.web3.PublicKey,
-  payer: anchor.web3.PublicKey,
-  walletAddress: anchor.web3.PublicKey,
-  splTokenMintAddress: anchor.web3.PublicKey
-) => {
-  const keys = [
-    { pubkey: payer, isSigner: true, isWritable: true },
-    { pubkey: associatedTokenAddress, isSigner: false, isWritable: true },
-    { pubkey: walletAddress, isSigner: false, isWritable: false },
-    { pubkey: splTokenMintAddress, isSigner: false, isWritable: false },
-    {
-      pubkey: anchor.web3.SystemProgram.programId,
-      isSigner: false,
-      isWritable: false,
-    },
-    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-    {
-      pubkey: anchor.web3.SYSVAR_RENT_PUBKEY,
-      isSigner: false,
-      isWritable: false,
-    },
-  ];
-  return new anchor.web3.TransactionInstruction({
-    keys,
-    programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-    data: Buffer.from([]),
-  });
-};
+// export const createAssociatedTokenAccountInstruction = (
+//   associatedTokenAddress: anchor.web3.PublicKey,
+//   payer: anchor.web3.PublicKey,
+//   walletAddress: anchor.web3.PublicKey,
+//   splTokenMintAddress: anchor.web3.PublicKey
+// ) => {
+//   const keys = [
+//     { pubkey: payer, isSigner: true, isWritable: true },
+//     { pubkey: associatedTokenAddress, isSigner: false, isWritable: true },
+//     { pubkey: walletAddress, isSigner: false, isWritable: false },
+//     { pubkey: splTokenMintAddress, isSigner: false, isWritable: false },
+//     {
+//       pubkey: anchor.web3.SystemProgram.programId,
+//       isSigner: false,
+//       isWritable: false,
+//     },
+//     { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+//     {
+//       pubkey: anchor.web3.SYSVAR_RENT_PUBKEY,
+//       isSigner: false,
+//       isWritable: false,
+//     },
+//   ];
+//   return new anchor.web3.TransactionInstruction({
+//     keys,
+//     programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+//     data: Buffer.from([]),
+//   });
+// };
 
 /** Get metaplex mint metadata account address */
 export const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {

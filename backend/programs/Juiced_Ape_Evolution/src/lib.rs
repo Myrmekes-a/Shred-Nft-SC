@@ -344,18 +344,18 @@ pub mod juiced_ape_evolution {
         // let cost_token_vault = &mut &ctx.accounts.cost_token_vault;
         // let token_program = &mut &ctx.accounts.token_program;
         let token_metadata_program = &ctx.accounts.token_metadata_program;
-        let mut price = 6 * SOL_DECIMAL / 10;
+        let mut price = 3 * SOL_DECIMAL / 10;
         if user_pool.juiced_count > 1 {
-            price = 5 * SOL_DECIMAL / 10;
+            price = 25 * SOL_DECIMAL / 100;
         }
         if user_pool.juiced_count > 4 {
-            price = 4 * SOL_DECIMAL / 10;
+            price = 2 * SOL_DECIMAL / 10;
         }
         if user_pool.juiced_count > 10 {
-            price = 35 * SOL_DECIMAL / 100;
+            price = 175 * SOL_DECIMAL / 1000;
         }
         if user_pool.juiced_count > 22 {
-            price = 3 * SOL_DECIMAL / 10;
+            price = 15 * SOL_DECIMAL / 100;
         }
 
         invoke(

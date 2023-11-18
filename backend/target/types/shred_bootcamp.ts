@@ -135,9 +135,14 @@ export type ShredBootcamp = {
       "name": "withdrawNftFromPool",
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "userPool",
@@ -718,9 +723,14 @@ export const IDL: ShredBootcamp = {
       "name": "withdrawNftFromPool",
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "userPool",

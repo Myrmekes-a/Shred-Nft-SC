@@ -12,6 +12,9 @@
     ],
     "module": "commonjs",
     "target": "es6",
+    "paths": {
+      "@solana/spl-token": ["./node_modules/@solana/spl-token"]
+    },
     "esModuleInterop": true
   }
 }

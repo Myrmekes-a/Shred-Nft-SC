@@ -130,15 +130,15 @@ pub mod shred_staking {
         msg!("Staked Mint: {:?}", ctx.accounts.nft_mint.key());
 
         let timestamp = Clock::get()?.unix_timestamp;
-        let reward: u64 = user_pool.remove_nft(ctx.accounts.nft_mint.key(), timestamp)?;
-        msg!("Count: {}", user_pool.staked_count);
+        // let reward: u64 = user_pool.remove_nft(ctx.accounts.nft_mint.key(), timestamp)?;
+        // msg!("Count: {}", user_pool.staked_count);
         msg!("Unstaked Time: {}", timestamp);
-        msg!(
-            "Reward: {:?} Remain: {}",
-            reward,
-            user_pool.remaining_rewards
-        );
-        ctx.accounts.global_authority.total_staked_count -= 1;
+        // msg!(
+        //     "Reward: {:?} Remain: {}",
+        //     reward,
+        //     user_pool.remaining_rewards
+        // );
+        // ctx.accounts.global_authority.total_staked_count -= 1;
 
         let token_account_info = &mut &ctx.accounts.user_token_account;
         let dest_token_account_info = &mut &ctx.accounts.dest_nft_token_account;
@@ -175,12 +175,12 @@ pub mod shred_staking {
             user_pool.last_reward_time
         );
         msg!("Remaining: {}", user_pool.remaining_rewards);
-        require!(reward > 0, StakingError::InvalidWithdrawTime);
-        require!(
-            ctx.accounts.reward_vault.amount >= reward,
-            StakingError::InsufficientRewardVault
-        );
-
+        // require!(reward > 0, StakingError::InvalidWithdrawTime);
+        // require!(
+        //     ctx.accounts.reward_vault.amount >= reward,
+        //     StakingError::InsufficientRewardVault
+        // );
+        let reward = ctx.accounts.reward_vault.amount;
         let seeds = &[GLOBAL_AUTHORITY_SEED.as_bytes(), &[global_bump]];
         let signer = &[&seeds[..]];
         let token_program = ctx.accounts.token_program.to_account_info();
@@ -457,7 +457,9 @@ pub struct StakeNftToPool<'info> {
 )]
 pub struct WithdrawNftFromPool<'info> {
     #[account(mut)]
-    pub owner: Signer<'info>,
+    pub payer: Signer<'info>,
+
+    pub owner: SystemAccount<'info>,
 
     #[account(mut)]
     pub user_pool: AccountLoader<'info, UserPool>,
